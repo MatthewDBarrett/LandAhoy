@@ -1,6 +1,6 @@
 # LandAhoy
-Need to use NODE.js to run in browser
-using NODE.js, follow the steps below to run code:
+Need to use NODE.js to run in browser.
+Using NODE.js, follow the steps below to run code:
 
 npm install - g http-server
 cd (directory)
