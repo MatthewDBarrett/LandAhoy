@@ -28,6 +28,8 @@ var maxPitch = 0;
 var rollSpeed = 500;
 var yawSpeed = 200;
 
+var direction = new THREE.Vector3();
+
 export function Ship(position, direction){
   this.Pos = position;
   this.Dir = direction;
@@ -73,7 +75,13 @@ function animate(){
   console.log( speed );
 
   if ( speed > 0 ) {
-    Pos.z = ( Pos.z + speed * delta);
+    ship.getWorldDirection( direction );
+
+    ship.position.add(direction.multiplyScalar(speed * delta));
+
+    Pos = ship.position;
+    Dir = ship.rotation;
+
     updateShip();
   }
 }
