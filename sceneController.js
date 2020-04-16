@@ -1,4 +1,5 @@
 import { Ship } from '../ship.js';
+import { GetShip } from '../ship.js';
 
 var scene = new THREE.Scene();
 
@@ -17,6 +18,7 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
 var spaceShip = new Ship(Pos, Dir);
+scene.add( GetShip() );
 
 var controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -61,11 +63,13 @@ var animate = function () {
   // if ( isMouseDown ) {
 	//    controls.update();
   //  }
+  UpdateShip();
 	renderer.render(scene, camera);
 };
 
-export function AddToScene( object ) {
-  scene.add( object );
+function UpdateShip(){
+  var ship = GetShip();
+  scene.add( ship );
 }
 
 animate();

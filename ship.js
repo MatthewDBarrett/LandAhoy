@@ -1,5 +1,3 @@
-import { AddToScene } from '../sceneController.js';
-
 const clock = new THREE.Clock();
 var delta = clock.getDelta();
 
@@ -17,7 +15,7 @@ var rollRight = false;
 
 var speed = 0;
 var minSpeed = 0;
-var maxSpeed = 10;
+var maxSpeed = 100;
 
 var yaw = 0;
 var minYaw = 0;
@@ -26,6 +24,9 @@ var maxYaw = 0;
 var pitch = 0;
 var minPitch = 0;
 var maxPitch = 0;
+
+var rollSpeed = 500;
+var yawSpeed = 200;
 
 export function Ship(position, direction){
   this.Pos = position;
@@ -55,15 +56,13 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   objLoader.load( modelPath.concat( modelFile ) , function (object) {
 
       ship = object;
-      ship.rotation.set(0,4,0);
-      AddToScene( ship );
     });
   });
 }
 
-// export function GetShip(){
-//   return ship;
-// }
+export function GetShip(){
+  return ship;
+}
 
 function animate(){
   delta = clock.getDelta();
@@ -71,34 +70,41 @@ function animate(){
   requestAnimationFrame( animate );
   ShipControls();
 
-  if ( speed > 0 )
-    ship.translateZ( speed * delta );
+  console.log( speed );
+
+  if ( speed > 0 ) {
+    Pos.z = ( Pos.z + speed * delta);
+    updateShip();
+  }
 }
 
 function ShipControls(){
   var delta = clock.getDelta();
 
   if (moveLeft) {
-
+    Dir.y += yawSpeed * delta;
   }
   if (moveRight) {
-    
+    Dir.y -= yawSpeed * delta;
   }
   if (increaseSpeed) {
-    Pos.z += speed * delta;
+    if ( speed < maxSpeed)
+      speed++;
   }
   if (decreaseSpeed) {
-    Pos.z -= speed * delta;
+    if ( speed > minSpeed)
+      speed--;
   }
   if (rollLeft){
-    Dir.z -= speed * delta;
+    Dir.z -= rollSpeed * delta;
   }
   if (rollRight){
-    Dir.z += speed * delta;
+    Dir.z += rollSpeed * delta;
   }
 
-  ship.position.set(Pos.x,Pos.y,Pos.z);
-  ship.rotation.set(Dir.x,Dir.y,Dir.z);
+  updateShip();
+
+  //console.log(ship.position);
 
   // if (isMouseDown)
   //   controls.target = new THREE.Vector3(Pos.x,Pos.y,Pos.z);
@@ -106,6 +112,12 @@ function ShipControls(){
   //camera.position.set(Pos.x+10,Pos.y+10,Pos.z+10);
   //camera.lookAt(ship);
 
+}
+
+function updateShip(){
+  //ship.localToWorld( Pos );
+  ship.position.set(Pos.x,Pos.y,Pos.z);
+  ship.rotation.set(Dir.x,Dir.y,Dir.z);
 }
 
 var onKeyDown = function ( event ) {
