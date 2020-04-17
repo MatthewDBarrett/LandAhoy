@@ -1,12 +1,12 @@
 # LandAhoy
 
---------------SHIP CONTROLS--------------
-W - Pitch down
-S - Pitch Up
-A - Yaw Left
-D - Yaw Right
-Q - Decrease Speed
-E - Increase Speed
+--------------SHIP CONTROLS-------------- /n
+W - Pitch down /n
+S - Pitch Up /n
+A - Yaw Left /n
+D - Yaw Right /n
+Q - Decrease Speed /n
+E - Increase Speed /n
 -----------------------------------------
 
 Need to use NODE.js to run in browser.
