@@ -1,4 +1,14 @@
 # LandAhoy
+
+--------------SHIP CONTROLS--------------
+W - Pitch down
+S - Pitch Up
+A - Yaw Left
+D - Yaw Right
+Q - Decrease Speed
+E - Increase Speed
+-----------------------------------------
+
 Need to use NODE.js to run in browser.
 Using NODE.js, follow the steps below to run code:
 
