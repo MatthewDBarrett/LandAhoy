@@ -1,20 +1,18 @@
 # LandAhoy
 
---------------SHIP CONTROLS-------------- /n
-W - Pitch down /n
-S - Pitch Up /n
-A - Yaw Left /n
-D - Yaw Right /n
-Q - Decrease Speed /n
-E - Increase Speed /n
+### SHIP CONTROLS<br />
+W - Pitch down<br />
+S - Pitch Up<br />
+A - Yaw Left<br />
+D - Yaw Right<br />
+Q - Decrease Speed<br />
+E - Increase Speed<br />
 -----------------------------------------
 
-Need to use NODE.js to run in browser.
-Using NODE.js, follow the steps below to run code:
+### How to Run
 
-npm install - g http-server
-cd (directory)
-http-server -c-1
+Use NODE.js to run in browser.
+Using NODE.js, follow the steps below:
 
 1. npm install - g http-server
 2. cd (directory address)
@@ -22,4 +20,4 @@ http-server -c-1
 4. go to http://localhost:8080/ on your browser
 
 
-NOTE: step 1 only needs to be entered for the first time running the http server
+NOTE: step 1 only needs to be entered for the first time before running the http server
