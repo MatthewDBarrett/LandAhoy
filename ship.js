@@ -10,8 +10,8 @@ var increaseSpeed=false;
 var moveLeft=false;
 var decreaseSpeed=false;
 var moveRight=false;
-var rollLeft = false;
-var rollRight = false;
+var decreasePitch = false;
+var increasePitch = false;
 
 var speed = 0;
 var minSpeed = 0;
@@ -27,6 +27,9 @@ var maxPitch = 0;
 
 var rollSpeed = 500;
 var yawSpeed = 200;
+var maxTilt = 0.5;
+var returnSpeed = 0.5;
+var pitchSpeed = 300;
 
 var direction = new THREE.Vector3();
 
@@ -58,6 +61,8 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   objLoader.load( modelPath.concat( modelFile ) , function (object) {
 
       ship = object;
+      ship.castShadow = true;
+    	ship.receiveShadow = true;
     });
   });
 }
@@ -72,8 +77,6 @@ function animate(){
   requestAnimationFrame( animate );
   ShipControls();
 
-  console.log( speed );
-
   if ( speed > 0 ) {
     ship.getWorldDirection( direction );
 
@@ -84,6 +87,26 @@ function animate(){
 
     updateShip();
   }
+
+  if ( !moveLeft && !moveRight && Dir.z != 0){
+    if ( Dir.z < 0){
+      Dir.z += returnSpeed * delta;
+    } else if ( Dir.z > 0){
+      Dir.z -= returnSpeed * delta;
+    }
+    if ( Dir.z > -0.009 && Dir.z < 0.009)
+      Dir.z = 0;
+  }
+
+  if ( !decreasePitch && !increasePitch && Dir.x != 0){
+    if ( Dir.x < 0){
+      Dir.x += returnSpeed * delta;
+    } else if ( Dir.x > 0){
+      Dir.x -= returnSpeed * delta;
+    }
+    if ( Dir.x > -0.009 && Dir.x < 0.009)
+      Dir.x = 0;
+  }
 }
 
 function ShipControls(){
@@ -91,9 +114,13 @@ function ShipControls(){
 
   if (moveLeft) {
     Dir.y += yawSpeed * delta;
+    if ( Dir.z > -maxTilt)
+      Dir.z -= rollSpeed/4 * delta;
   }
   if (moveRight) {
     Dir.y -= yawSpeed * delta;
+    if ( Dir.z < maxTilt)
+      Dir.z += rollSpeed/4 * delta;
   }
   if (increaseSpeed) {
     if ( speed < maxSpeed)
@@ -103,11 +130,13 @@ function ShipControls(){
     if ( speed > minSpeed)
       speed--;
   }
-  if (rollLeft){
-    Dir.z -= rollSpeed * delta;
+  if (increasePitch){
+    if ( Dir.x > -maxTilt)
+      Dir.x -= pitchSpeed * delta;
   }
-  if (rollRight){
-    Dir.z += rollSpeed * delta;
+  if (decreasePitch){
+    if ( Dir.x < maxTilt)
+      Dir.x += pitchSpeed * delta;
   }
 
   updateShip();
@@ -133,7 +162,7 @@ var onKeyDown = function ( event ) {
   switch ( event.keyCode ) {
 
     case 87: // w
-      increaseSpeed = true;
+      decreasePitch = true;
       break;
 
     case 65: // a
@@ -141,17 +170,17 @@ var onKeyDown = function ( event ) {
       break;
 
     case 83: // s
-      decreaseSpeed = true;
+      increasePitch = true;
       break;
 
     case 68: // d
       moveRight = true;
       break;
     case 81: // q
-      rollLeft = true;
+      decreaseSpeed = true;
       break;
     case 69: // e
-      rollRight = true;
+      increaseSpeed = true;
       break;
   }
 
@@ -162,7 +191,7 @@ var onKeyUp = function ( event ) {
   switch( event.keyCode ) {
 
     case 87: // w
-      increaseSpeed = false;
+      decreasePitch = false;
       break;
 
     case 65: // a
@@ -170,17 +199,17 @@ var onKeyUp = function ( event ) {
       break;
 
     case 83: // s
-      decreaseSpeed = false;
+      increasePitch = false;
       break;
 
     case 68: // d
       moveRight = false;
       break;
     case 81: // q
-      rollLeft = false;
+      decreaseSpeed = false;
       break;
     case 69: // e
-      rollRight = false;
+      increaseSpeed = false;
       break;
   }
 };

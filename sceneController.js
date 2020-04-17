@@ -15,6 +15,8 @@ camera.position.z = 10;
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild( renderer.domElement );
 
 var spaceShip = new Ship(Pos, Dir);
@@ -25,38 +27,67 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.25;
 controls.enableZoom = true;
 
-var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
-keyLight.position.set(0, 0, 0);
-
-var fillLight = new THREE.DirectionalLight(new THREE.Color('hsl(240, 100%, 75%)'), 0.75);
-fillLight.position.set(0, 0, 0);
-
-var backLight = new THREE.DirectionalLight(0xffffff, 1.0);
-backLight.position.set(0, 0, 0).normalize();
+// var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
+// keyLight.position.set(0, 0, 0);
+//
+// var fillLight = new THREE.DirectionalLight(new THREE.Color('hsl(240, 100%, 75%)'), 0.75);
+// fillLight.position.set(0, 0, 0);
+//
+// var backLight = new THREE.DirectionalLight(0xffffff, 1.0);
+// backLight.position.set(0, 0, 0).normalize();
+//
+// scene.add(keyLight);
+// scene.add(fillLight);
+// scene.add(backLight);
 
 // var camLight = new THREE.PointLight(new THREE.Color(1,1,1), 1000, 2000);
 // camLight.position.set(10,10,0);
 // camera.add(camLight);
 // scene.add(camera);
 
-var pointLight = new THREE.SpotLight(new THREE.Color(1,1,1), 1,100);
-pointLight.position.set(0,20,0);
-scene.add(pointLight);
+// var spotLight = new THREE.SpotLight(
+// 	new THREE.Color(1,1,1), 						//color
+// 	2,																	//intensity
+// 	200, 																//distance
+// 	Math.PI/3, 													//angle
+// 	0.9																	//penumbra
+// );
+// spotLight.position.set(0,80,0);
+// spotLight.castShadow = true;
+// scene.add(spotLight);
+//
+// var spotlightHelper = new THREE.SpotLightHelper(spotLight);
+// scene.add(spotlightHelper);
 
-scene.add(keyLight);
-scene.add(fillLight);
-scene.add(backLight);
-
-var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-var material = new THREE.MeshBasicMaterial( {color: 0x777777} );
-var cube = new THREE.Mesh( geometry, material );
-
-cube.position.set(0,-5,0);
-cube.scale.set(100,0.1,100);
-
-scene.add( cube );
+var directionLight = new THREE.DirectionalLight(
+	new THREE.Color(1,1,1), 						//color
+	1,																	//intensity
+	200, 																//distance
+	Math.PI/3, 													//angle
+	0.9																	//penumbra
+);
+directionLight.castShadow = true;
+scene.add(directionLight);
 
 
+var groundTexture = new THREE.TextureLoader().load( "textures/grass.jpg" );
+groundTexture.wrapS = THREE.RepeatWrapping;
+groundTexture.wrapT = THREE.RepeatWrapping;
+groundTexture.repeat.x = 20;
+groundTexture.repeat.y = 20;
+
+var geometry = new THREE.PlaneGeometry( 1, 1, 1 );
+var material = new THREE.MeshPhongMaterial( {map: groundTexture } );
+var ground = new THREE.Mesh( geometry, material );
+
+ground.position.set(0,-5,0);
+ground.scale.set(400,400,1);
+ground.rotation.x = -Math.PI/2;
+
+ground.castShadow = false;
+ground.receiveShadow = true;
+
+scene.add( ground );
 
 var animate = function () {
 	requestAnimationFrame( animate );
@@ -69,6 +100,8 @@ var animate = function () {
 
 function UpdateShip(){
   var ship = GetShip();
+	ship.castShadow = true;
+	ship.receiveShadow = true;
   scene.add( ship );
 }
 
