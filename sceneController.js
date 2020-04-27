@@ -1,5 +1,8 @@
 import { Ship } from '../ship.js';
 import { GetShip } from '../ship.js';
+import { getShipPos } from '../ship.js';
+import { cameraTracking } from '../cameraTracking.js'
+import { getCamera } from '../cameraTracking.js'
 
 var scene = new THREE.Scene();
 
@@ -10,8 +13,6 @@ var Dir = new THREE.Vector3(0,0,0);
 
 //var isMouseDown = false;
 
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-camera.position.z = 10;
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -20,12 +21,14 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild( renderer.domElement );
 
 var spaceShip = new Ship(Pos, Dir);
+// var cameraTrack = new cameraTracking(scene, renderer);
 scene.add( GetShip() );
 
-var controls = new THREE.OrbitControls(camera, renderer.domElement);
+var controls = new THREE.OrbitControls(getCamera() , renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.25;
 controls.enableZoom = true;
+controls.target.set = getShipPos();
 
 // var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
 // keyLight.position.set(0, 0, 0);
@@ -95,7 +98,8 @@ var animate = function () {
 	//    controls.update();
   //  }
   UpdateShip();
-	renderer.render(scene, camera);
+  controls.target.set = getShipPos();
+	renderer.render(scene, getCamera());
 };
 
 function UpdateShip(){

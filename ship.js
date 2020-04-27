@@ -157,6 +157,14 @@ function updateShip(){
   ship.rotation.set(Dir.x,Dir.y,Dir.z);
 }
 
+export function getShipPos(){
+  return Pos;
+}
+
+export function getShipDir(){
+  return Dir;
+}
+
 var onKeyDown = function ( event ) {
 
   switch ( event.keyCode ) {
