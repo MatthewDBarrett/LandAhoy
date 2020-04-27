@@ -17,16 +17,8 @@ var speed = 0;
 var minSpeed = 0;
 var maxSpeed = 100;
 
-var yaw = 0;
-var minYaw = 0;
-var maxYaw = 0;
-
-var pitch = 0;
-var minPitch = 0;
-var maxPitch = 0;
-
-var rollSpeed = 500;
-var yawSpeed = 200;
+var rollSpeed = 1000;
+var yawSpeed = 350;
 var maxTilt = 0.5;
 var returnSpeed = 0.5;
 var pitchSpeed = 300;
@@ -131,12 +123,15 @@ function ShipControls(){
       speed--;
   }
   if (increasePitch){
-    if ( Dir.x > -maxTilt)
-      Dir.x -= pitchSpeed * delta;
+    if ( Dir.x < maxTilt){
+      ship.rotation.x -= pitchSpeed * delta;
+      //Dir.x -= pitchSpeed * delta;
+    }
   }
   if (decreasePitch){
-    if ( Dir.x < maxTilt)
+    if ( Dir.x < maxTilt){
       Dir.x += pitchSpeed * delta;
+    }
   }
 
   updateShip();
