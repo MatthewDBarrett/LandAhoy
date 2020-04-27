@@ -2,7 +2,7 @@ import { getShipPos } from '../ship.js';
 import { getShipDir } from '../ship.js';
 
 var relativeCameraOffset = new THREE.Vector3(0,50,200);
-var cameraOffset;
+var cameraOffset = new THREE.Vector3(0,5,-10);
 var shipCube;
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 camera.position.z = getShipPos().z - 10;
@@ -25,7 +25,7 @@ function animate() {   //Loop
 }
 
 function resetControlTarget(){
-  controls.target.set = getShipPos();  
+  controls.target.set = getShipPos();
 }
 
 export function getCamera(){
