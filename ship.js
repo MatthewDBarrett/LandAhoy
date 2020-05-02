@@ -101,6 +101,10 @@ function animate(){
   }
 }
 
+export function getShipPos(){
+  return Pos;
+}
+
 function ShipControls(){
   var delta = clock.getDelta();
 
