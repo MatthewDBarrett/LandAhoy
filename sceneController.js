@@ -107,8 +107,7 @@ function UpdateShip(){
 	var direction = new THREE.Vector3();
 
 	ship.getWorldDirection( direction );
-
-	ship.add(getCamera());
+	
 	//camera.position.set(ship.position.x, ship.position.y + 4, ship.position.z - 8);
 
 

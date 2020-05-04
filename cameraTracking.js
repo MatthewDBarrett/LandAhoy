@@ -5,6 +5,7 @@ var isInitialized = false;
 var offset;
 var shipPos;
 var camera;
+var orbitCam = true;
 
 
 export function cameraTracking() {   //constructor
@@ -23,7 +24,12 @@ function animate() {   //Loop
     updateOffset();
     // camera.position.set(offset.x, offset.y, offset.z);
     // camera.lookAt(shipPos.x , shipPos.y, shipPos.z); 
-
+    if(orbitCam){
+      GetShip().add(getCamera());  
+    } 
+    else{
+      GetShip().remove(getCamera());
+    }
   }
   requestAnimationFrame( animate );
 }
@@ -41,5 +47,20 @@ export function getCamera(){
     return null;
   }
 }
+
+var onKeyDown = function ( event ) {
+
+  switch ( event.keyCode ) {
+
+    case 70: // f
+      orbitCam = !orbitCam;
+      console.log(orbitCam);
+      break;
+  }
+
+};
+
+document.addEventListener( 'keydown', onKeyDown, false );
+
 
 animate();
