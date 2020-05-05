@@ -19,13 +19,8 @@ document.body.appendChild( renderer.domElement );
 //var isMouseDown = false;
 
 var spaceShip = new Ship(Pos, Dir);
-var camera = new cameraTracking();
+var camera = new cameraTracking(renderer, scene);
 scene.add( GetShip() );
-
-var controls = new THREE.OrbitControls(getCamera(), renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.25;
-controls.enableZoom = true;
 
 // var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
 // keyLight.position.set(0, 0, 0);
