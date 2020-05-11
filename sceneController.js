@@ -1,7 +1,6 @@
-import { Ship } from '../ship.js';
-import { GetShip } from '../ship.js';
-import { cameraTracking } from '../cameraTracking.js'
-import { getCamera } from '../cameraTracking.js'
+import { Ship, GetShip } from '../ship.js';
+import { cameraTracking, getCamera } from '../cameraTracking.js'
+import { ground, getGround } from '../ground.js'
 
 var scene = new THREE.Scene();
 
@@ -9,6 +8,9 @@ const clock = new THREE.Clock();
 
 var Pos = new THREE.Vector3(0,0,0);
 var Dir = new THREE.Vector3(0,0,0);
+
+var worldDepth = 256;
+var worldWidth = 256;
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -64,25 +66,9 @@ var directionLight = new THREE.DirectionalLight(
 directionLight.castShadow = true;
 scene.add(directionLight);
 
+ground(worldWidth, worldDepth);
 
-var groundTexture = new THREE.TextureLoader().load( "textures/grass.jpg" );
-groundTexture.wrapS = THREE.RepeatWrapping;
-groundTexture.wrapT = THREE.RepeatWrapping;
-groundTexture.repeat.x = 20;
-groundTexture.repeat.y = 20;
-
-var geometry = new THREE.PlaneGeometry( 1, 1, 1 );
-var material = new THREE.MeshPhongMaterial( {map: groundTexture } );
-var ground = new THREE.Mesh( geometry, material );
-
-ground.position.set(0,-5,0);
-ground.scale.set(400,400,1);
-ground.rotation.x = -Math.PI/2;
-
-ground.castShadow = false;
-ground.receiveShadow = true;
-
-scene.add( ground );
+scene.add( getGround() );
 
 var animate = function () {
 	requestAnimationFrame( animate );
@@ -110,7 +96,18 @@ function UpdateShip(){
   scene.add( ship );
 }
 
+function onWindowResize() {
+
+	getCamera().aspect = window.innerWidth / window.innerHeight;
+	getCamera().updateProjectionMatrix();
+
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+
 animate();
+
+window.addEventListener( 'resize', onWindowResize, false );
 // document.addEventListener( 'keydown', onKeyDown, false );
 // document.addEventListener( 'keyup', onKeyUp, false );
 // document.addEventListener( 'mousedown', onMouseDown, false );
