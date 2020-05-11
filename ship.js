@@ -105,6 +105,10 @@ export function getShipPos(){
   return Pos;
 }
 
+export function getShipDir(){
+  return Dir;
+}
+
 function ShipControls(){
   var delta = clock.getDelta();
 
