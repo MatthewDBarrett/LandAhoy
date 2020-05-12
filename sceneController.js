@@ -9,8 +9,8 @@ const clock = new THREE.Clock();
 var Pos = new THREE.Vector3(0,0,0);
 var Dir = new THREE.Vector3(0,0,0);
 
-var worldDepth = 256;
-var worldWidth = 256;
+var worldDepth = 32;
+var worldWidth = 32;
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
