@@ -14,8 +14,9 @@ var decreasePitch = false;
 var increasePitch = false;
 
 var speed = 0;
+var accel = 10;
 var minSpeed = 0;
-var maxSpeed = 100;
+var maxSpeed = 1000;
 
 var rollSpeed = 1000;
 var yawSpeed = 350;
@@ -109,8 +110,15 @@ export function getShipDir(){
   return Dir;
 }
 
+export function setShipPos(x, y, z){
+  console.log("z " + z);
+  var vec = new THREE.Vector3(x, y, z);
+  Pos.set(vec.x, vec.y, vec.z);
+}
+
 function ShipControls(){
   var delta = clock.getDelta();
+  //console.log(Pos);
 
   if (moveLeft) {
     Dir.y += yawSpeed * delta;
@@ -124,11 +132,11 @@ function ShipControls(){
   }
   if (increaseSpeed) {
     if ( speed < maxSpeed)
-      speed++;
+      speed += accel;
   }
   if (decreaseSpeed) {
     if ( speed > minSpeed)
-      speed--;
+      speed -= accel;
   }
   if (increasePitch){
     if ( Dir.x < maxTilt){

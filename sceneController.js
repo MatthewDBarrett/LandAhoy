@@ -9,8 +9,8 @@ const clock = new THREE.Clock();
 var Pos = new THREE.Vector3(0,0,0);
 var Dir = new THREE.Vector3(0,0,0);
 
-var worldDepth = 32;
-var worldWidth = 32;
+var worldDepth = 256;
+var worldWidth = 256;
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -22,6 +22,7 @@ document.body.appendChild( renderer.domElement );
 
 var spaceShip = new Ship(Pos, Dir);
 var camera = new cameraTracking(renderer, scene);
+scene.background = new THREE.Color( 0xbfd1e5 );
 scene.add( GetShip() );
 
 // var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
