@@ -1,6 +1,7 @@
 import { Ship, GetShip } from '../ship.js';
 import { cameraTracking } from '../cameraTracking.js'
 import { getCamera } from '../cameraTracking.js'
+import { terrainGenerator } from '../terrainGenerator.js'
 
 var scene = new THREE.Scene();
 
@@ -63,25 +64,7 @@ var directionLight = new THREE.DirectionalLight(
 directionLight.castShadow = true;
 scene.add(directionLight);
 
-
-var groundTexture = new THREE.TextureLoader().load( "textures/grass.jpg" );
-groundTexture.wrapS = THREE.RepeatWrapping;
-groundTexture.wrapT = THREE.RepeatWrapping;
-groundTexture.repeat.x = 20;
-groundTexture.repeat.y = 20;
-
-var geometry = new THREE.PlaneGeometry( 1, 1, 1 );
-var material = new THREE.MeshPhongMaterial( {map: groundTexture } );
-var ground = new THREE.Mesh( geometry, material );
-
-ground.position.set(0,-5,0);
-ground.scale.set(400,400,1);
-ground.rotation.x = -Math.PI/2;
-
-ground.castShadow = false;
-ground.receiveShadow = true;
-
-scene.add( ground );
+terrainGenerator();
 
 var animate = function () {
 	requestAnimationFrame( animate );
@@ -101,12 +84,16 @@ function UpdateShip(){
 	var direction = new THREE.Vector3();
 
 	ship.getWorldDirection( direction );
-	
+
 	//camera.position.set(ship.position.x, ship.position.y + 4, ship.position.z - 8);
 
 
 	//camera.lookAt(ship.position);
   scene.add( ship );
+}
+
+export function addToScene(object){
+	scene.add( object );
 }
 
 animate();
