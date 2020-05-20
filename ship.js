@@ -20,15 +20,20 @@ var maxSpeed = 100;
 var rollSpeed = 1000;
 var yawSpeed = 350;
 var maxTilt = 0.5;
+var minTilt = -0.5;
 var returnSpeed = 0.5;
 var pitchSpeed = 300;
 
 var direction = new THREE.Vector3();
 
+var cubeA;
+var initialise = false;
+
 export function Ship(position, direction){
   this.Pos = position;
   this.Dir = direction;
   init();
+  initialise = true;
 }
 
 function init(){
@@ -57,6 +62,8 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
     	ship.receiveShadow = true;
     });
   });
+
+  ship.rotation.reorder = "YXZ"; 
 }
 
 export function GetShip(){
@@ -105,6 +112,10 @@ export function getShipPos(){
   return Pos;
 }
 
+export function getShipDir(){
+  return Dir;
+}
+
 function ShipControls(){
   var delta = clock.getDelta();
 
@@ -127,9 +138,9 @@ function ShipControls(){
       speed--;
   }
   if (increasePitch){
-    if ( Dir.x < maxTilt){
-      ship.rotation.x -= pitchSpeed * delta;
-      //Dir.x -= pitchSpeed * delta;
+    if ( Dir.x > minTilt){
+      // ship.rotation.x -= pitchSpeed * delta;
+      Dir.x -= pitchSpeed * delta;
     }
   }
   if (decreasePitch){
@@ -153,7 +164,7 @@ function ShipControls(){
 function updateShip(){
   //ship.localToWorld( Pos );
   ship.position.set(Pos.x,Pos.y,Pos.z);
-  ship.rotation.set(Dir.x,Dir.y,Dir.z);
+  ship.rotation.set(Dir.x,Dir.y,Dir.z, 'YXZ');
 }
 
 var onKeyDown = function ( event ) {

@@ -1,5 +1,4 @@
-import { Ship } from '../ship.js';
-import { GetShip } from '../ship.js';
+import { Ship, GetShip } from '../ship.js';
 import { cameraTracking } from '../cameraTracking.js'
 import { getCamera } from '../cameraTracking.js'
 
