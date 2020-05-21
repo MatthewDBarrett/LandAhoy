@@ -1,5 +1,6 @@
-import { Ship } from '../ship.js';
-import { GetShip } from '../ship.js';
+import { Ship, GetShip } from '../ship.js';
+import { cameraTracking } from '../cameraTracking.js'
+import { getCamera } from '../cameraTracking.js'
 
 var scene = new THREE.Scene();
 
@@ -7,14 +8,6 @@ const clock = new THREE.Clock();
 
 var Pos = new THREE.Vector3(0,0,0);
 var Dir = new THREE.Vector3(0,0,0);
-var InitialCameraPos = new THREE.Vector3(0,4,-8);
-
-//var isMouseDown = false;
-
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-camera.position.z = 10;
-
-camera.position.set(InitialCameraPos.x, InitialCameraPos.y, InitialCameraPos.z);
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -22,13 +15,11 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild( renderer.domElement );
 
-var spaceShip = new Ship(Pos, Dir);
-scene.add( GetShip() );
+//var isMouseDown = false;
 
-var controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.25;
-controls.enableZoom = true;
+var spaceShip = new Ship(Pos, Dir);
+var camera = new cameraTracking(renderer, scene);
+scene.add( GetShip() );
 
 // var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
 // keyLight.position.set(0, 0, 0);
@@ -98,7 +89,7 @@ var animate = function () {
 	//    controls.update();
   //  }
   UpdateShip();
-	renderer.render(scene, camera);
+	renderer.render(scene, getCamera());
 };
 
 function UpdateShip(){
@@ -110,9 +101,7 @@ function UpdateShip(){
 	var direction = new THREE.Vector3();
 
 	ship.getWorldDirection( direction );
-
-	ship.add(camera);
-
+	
 	//camera.position.set(ship.position.x, ship.position.y + 4, ship.position.z - 8);
 
 
