@@ -1,13 +1,15 @@
 import { addToScene } from '../sceneController.js'
 import { removeFromScene } from '../sceneController.js'
 
+var chunk = [];
 var chunks = [];
 
 var vertices = [];
 
 var spheres = [];
 
-var triangles = [];
+var triangle = [];
+var numChunks = 0;
 
 var lastVertDis = 0;
 var lastXSize = 0;
@@ -17,7 +19,9 @@ var options = {
   vertDistance: 1,
   xSize: 20,
   zSize: 20,
-  amplitude: 1
+  amplitude: 1,
+  hide: ['None','Chunk 1','Chunk 2','Chunk 3'],
+  show: ['None','Chunk 1','Chunk 2','Chunk 3']
 }
 
 export function terrainGenerator(){
@@ -37,6 +41,8 @@ function UserInterface(){
   ter.add(options, 'xSize', 0, 20).name('Width').listen();
   ter.add(options, 'zSize', 0, 20).name('Length').listen();
   ter.add(options, 'amplitude', 0, 10).name('Amplitude').listen();
+  ter.add(options, 'hide', ['None','Chunk 1','Chunk 2','Chunk 3']).listen();
+  ter.add(options, 'show', ['None','Chunk 1','Chunk 2','Chunk 3']).listen();
   ter.open();
 }
 
@@ -54,7 +60,7 @@ function CreateShape(direction){
       for (var x = 0; x <= options.xSize; x++){
         var yNoise = Math.random() * options.amplitude;
         if ( z == 0 ){
-          vertices[i] = vertices[(options.zSize * options.zSize +options.zSize) + i];
+          vertices[i] = vertices[(options.zSize * options.zSize + options.zSize) + i];
         } else {
           vertices[i] = new THREE.Vector3(x * options.vertDistance, yNoise, (z * options.vertDistance) + (options.zSize * options.vertDistance));
         }
@@ -62,7 +68,18 @@ function CreateShape(direction){
       }
     }
   } else if (direction == 'left') {
-
+    var i = 0;
+    for (var z = 0; z <= options.zSize; z++){
+      for (var x = 0; x <= options.xSize; x++){
+        var yNoise = Math.random() * options.amplitude;
+        if ( x == 0 ){
+          vertices[i] = vertices[i+20];
+        } else {
+          vertices[i] = new THREE.Vector3((x * options.vertDistance) + (options.xSize * options.vertDistance), yNoise, (z * options.vertDistance) + (options.zSize * options.vertDistance));
+        }
+        i++;
+      }
+    }
   } else {
     var i = 0;
     for (var z = 0; z <= options.zSize; z++){
@@ -75,21 +92,22 @@ function CreateShape(direction){
   }
 
   RenderChunk();
-  chunks.push(triangles);
-
+  chunks.push(chunk);
+  chunk = [];
+  //numChunks++;
 }
 
 function RenderChunk(){
   for (var z = 0; z < (options.xSize * options.zSize); z+=options.xSize+1){
     for (var x = 0; x < options.xSize; x++){
-      triangles[0] = vertices[z+x+0];
-      triangles[1] = vertices[z+x+options.xSize+1];
-      triangles[2] = vertices[z+x+options.xSize+2];
-      DrawTriangle(triangles[0],triangles[1],triangles[2]);
-      triangles[0] = vertices[z+x+1];
-      triangles[1] = vertices[z+x+0];
-      triangles[2] = vertices[z+x+options.xSize+2];
-      DrawTriangle(triangles[0],triangles[1],triangles[2]);
+      triangle[0] = vertices[z+x+0];
+      triangle[1] = vertices[z+x+options.xSize+1];
+      triangle[2] = vertices[z+x+options.xSize+2];
+      DrawTriangle(triangle[0],triangle[1],triangle[2]);
+      triangle[0] = vertices[z+x+1];
+      triangle[1] = vertices[z+x+0];
+      triangle[2] = vertices[z+x+options.xSize+2];
+      DrawTriangle(triangle[0],triangle[1],triangle[2]);
     }
   }
 }
@@ -106,6 +124,7 @@ function DrawTriangle(v1, v2, v3){
 
   var mesh = new THREE.Mesh( geom, new THREE.MeshNormalMaterial() );
 
+  chunk.push(mesh);
   addToScene(mesh);
 }
 
@@ -164,6 +183,47 @@ var animate = function() {
   lastVertDis = options.vertDistance;
   lastXSize = options.xSize;
   lastZSize = options.zSize;
+
+  if (options.hide != null && options.hide!= 'None'){
+    if (options.hide == 'Chunk 1'){
+      HideChunk(1);
+      options.hide = 'None';
+    } else if (options.hide == 'Chunk 2'){
+      HideChunk(2);
+      options.hide = 'None';
+    } else if (options.hide == 'Chunk 3'){
+      HideChunk(3);
+      options.hide = 'None';
+    }
+  }
+
+  if (options.show != null && options.show!= 'None'){
+    if (options.show == 'Chunk 1'){
+      ShowChunk(1);
+      options.show = 'None';
+    } else if (options.show == 'Chunk 2'){
+      ShowChunk(2);
+      options.show = 'None';
+    } else if (options.show == 'Chunk 3'){
+      ShowChunk(3);
+      options.show = 'None';
+    }
+  }
+
+}
+
+function HideChunk(chunk){
+  chunk--;
+  var triArray = chunks[chunk];
+  for (var i = 0; i < triArray.length; i++)
+    triArray[i].visible = false;
+}
+
+function ShowChunk(chunk){
+  chunk--;
+  var triArray = chunks[chunk];
+  for (var i = 0; i < triArray.length; i++)
+    triArray[i].visible = true;
 }
 
 animate();
