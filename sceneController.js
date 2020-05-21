@@ -64,7 +64,7 @@ var directionLight = new THREE.DirectionalLight(
 directionLight.castShadow = true;
 scene.add(directionLight);
 
-terrainGenerator();
+var terrain = new terrainGenerator();
 
 var animate = function () {
 	requestAnimationFrame( animate );
@@ -94,6 +94,10 @@ function UpdateShip(){
 
 export function addToScene(object){
 	scene.add( object );
+}
+
+export function removeFromScene(object){
+	scene.remove( object );
 }
 
 animate();

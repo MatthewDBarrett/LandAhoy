@@ -63,7 +63,7 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
     });
   });
 
-  ship.rotation.reorder = "YXZ"; 
+  ship.rotation.reorder = "YXZ";
 }
 
 export function GetShip(){
