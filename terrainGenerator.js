@@ -1,6 +1,8 @@
 import { addToScene } from '../sceneController.js'
 import { removeFromScene } from '../sceneController.js'
 
+var chunks = [];
+
 var vertices = [];
 
 var spheres = [];
@@ -14,7 +16,8 @@ var lastZSize = 0;
 var options = {
   vertDistance: 1,
   xSize: 20,
-  zSize: 20
+  zSize: 20,
+  amplitude: 1
 }
 
 export function terrainGenerator(){
@@ -22,35 +25,63 @@ export function terrainGenerator(){
 }
 
 function init(){
+  UserInterface();
+  CreateWorld();
+  //DrawSpheres();
+}
+
+function UserInterface(){
   var gui = new dat.GUI();
   var ter = gui.addFolder('Terrain');
   ter.add(options, 'vertDistance', 0, 10).name('Terrain Size').listen();
   ter.add(options, 'xSize', 0, 20).name('Width').listen();
   ter.add(options, 'zSize', 0, 20).name('Length').listen();
+  ter.add(options, 'amplitude', 0, 10).name('Amplitude').listen();
   ter.open();
-
-  CreateShape();
-  //DrawSpheres();
 }
 
-function CreateShape(){
-  //vertices = new THREE.Vector3[(xSize + 1) * (zSize + 1)];
+function CreateWorld(){
+  CreateShape();
+  CreateShape('up');
+  CreateShape('left');
+}
 
-  var i = 0;
-  for (var z = 0; z <= options.zSize; z++){
-    for (var x = 0; x <= options.xSize; x++){
-      var yNoise = Math.random();
-      //var yNoise = 0;
-      vertices[i] = new THREE.Vector3(x, yNoise, z);
-      i++;
+function CreateShape(direction){
+
+  if (direction == 'up'){
+    var i = 0;
+    for (var z = 0; z <= options.zSize; z++){
+      for (var x = 0; x <= options.xSize; x++){
+        var yNoise = Math.random() * options.amplitude;
+        if ( z == 0 ){
+          vertices[i] = vertices[(options.zSize * options.zSize +options.zSize) + i];
+        } else {
+          vertices[i] = new THREE.Vector3(x * options.vertDistance, yNoise, (z * options.vertDistance) + (options.zSize * options.vertDistance));
+        }
+        i++;
+      }
+    }
+  } else if (direction == 'left') {
+
+  } else {
+    var i = 0;
+    for (var z = 0; z <= options.zSize; z++){
+      for (var x = 0; x <= options.xSize; x++){
+        var yNoise = Math.random() * options.amplitude;
+        vertices[i] = new THREE.Vector3(x* options.vertDistance, yNoise, z* options.vertDistance);
+        i++;
+      }
     }
   }
 
+  RenderChunk();
+  chunks.push(triangles);
+
+}
+
+function RenderChunk(){
   for (var z = 0; z < (options.xSize * options.zSize); z+=options.xSize+1){
     for (var x = 0; x < options.xSize; x++){
-      // triangles[0] = new THREE.Vector3(0,0,0);
-      // triangles[1] = new THREE.Vector3(1,0,0);
-      // triangles[2] = new THREE.Vector3(1,0,1);
       triangles[0] = vertices[z+x+0];
       triangles[1] = vertices[z+x+options.xSize+1];
       triangles[2] = vertices[z+x+options.xSize+2];
@@ -61,23 +92,6 @@ function CreateShape(){
       DrawTriangle(triangles[0],triangles[1],triangles[2]);
     }
   }
-
-  // var vert = 0;
-  // var tris = 0;
-  //
-  // for (var x = 0; x < options.xSize; x++){
-  //   triangles[tris + 0] = vertices[vert+x+0];
-  //   triangles[tris + 1] = vertices[vert+x+21];
-  //   triangles[tris + 2] = vertices[vert+x+22];
-  //   DrawTriangle(triangles[tris + 0],triangles[tris + 1],triangles[tris + 2]);
-  //   triangles[tris + 3] = vertices[vert+x+1];
-  //   triangles[tris + 4] = vertices[vert+x+0];
-  //   triangles[tris + 5] = vertices[vert+x+22];
-  //   DrawTriangle(triangles[tris + 3],triangles[tris + 4],triangles[tris + 5]);
-  //   vert++;
-  //   tris +=6;
-  // }
-
 }
 
 function DrawTriangle(v1, v2, v3){
