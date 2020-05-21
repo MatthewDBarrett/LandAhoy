@@ -103,7 +103,7 @@ function updateOffset(){
   shipPos = getShipPos();
   shipDir = getShipDir();
   group.position.set(shipPos.x, shipPos.y, shipPos.z);
-  group.rotation.set(shipDir.x, shipDir.y, shipDir.z);
+  group.rotation.set(shipDir.x, shipDir.y, shipDir.z, "YXZ");
 }
 
 export function getCamera(){
