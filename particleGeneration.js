@@ -1,11 +1,19 @@
 export class ParticleGen {
     
-    constructor(pos, dir) {
+    constructor(pos, dir, scene) {
         this.pos = pos;
         this.dir = dir;
+        this.scene = scene;
         this.particles = [];
     }
 
+    generateParticle(){
+        var particle = new Particle(new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 1), 111, 0.0001);
+    }
+
+    addToScene(particle){
+        this.scene.add(particle);
+    }
     //TODO
     /*
     1) Spawn a particle(add it at the end)
@@ -23,14 +31,17 @@ export class Particle{
         //Fields
         this.pos = pos;
         this.rot = rot;
-        //this.dir = dir;
+        this.dir = dir;
         this.lifetime = lifetime;
         this.speed = initSpeed;
         this.geometry = new THREE.Geometry();
         this.material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
         this.particleMesh = null;
-        this.direction = new THREE.Vector3();
-        this.box = null;
+        this.direction = dir;
+        this.cubeGeometry = new THREE.BoxGeometry(0.1,0.1,0.1);
+        this.cubeMat = new THREE.MeshNormalMaterial();
+        this.cubeMat.visible = true
+        this.cube = new THREE.Mesh( this.cubeGeometry, this.cubeMat );
 
         //messy triangle gen
         var v1 = new THREE.Vector3(0,0,0);
@@ -43,18 +54,17 @@ export class Particle{
         this.geometry.computeFaceNormals();
         this.material.side = THREE.DoubleSide;
         this.material.wireframe = false;
+        this.geometry.translate( -0.5, -0.5, 0 );
 
         //Combine to make mesh
         this.particleMesh = new THREE.Mesh( this.geometry, this.material );
 
         //Random starting rotation
-        this.rot = new THREE.Vector3(Math.random(), Math.random(), Math.random());
+        this.rot = new THREE.Vector3(Math.random() * 10, Math.random(), Math.random() * 50);
 
-        //Reset axis to the center of the thing
-        this.box = new THREE.Box3().setFromObject( this.particleMesh );
-        this.box.center(this.particleMesh.position);
-        this.particleMesh.position.multiplyScalar(-1);
-
+        //Set cube to same position as particle, but correct orientation.
+        this.cube.position.set(this.pos.x, this.pos.y, this.pos.z);
+        this.cube.rotation.set(this.dir.x, this.dir.y, this.dir.z);
     }
 
     //return lifetime
@@ -70,18 +80,22 @@ export class Particle{
     getParticleMesh(){
         return this.particleMesh;
     }
+    
+    getCube(){
+        return this.cube;
+    }
 
     //update position
-    updateParticle(){
+    updateParticle(delta){
         this.rot.x += 0.1;
         this.rot.y += 0.1;
         this.rot.z += 0.1;
         if(this.speed > 0){            
-            this.particleMesh.getWorldDirection( this.direction );
-            this.particleMesh.position.add( this.direction.multiplyScalar(this.speed));
-            this.particleMesh.rotation.set(this.rot.x, this.rot.y, this.rot.z)
+            this.cube.getWorldDirection(this.direction);
+            this.cube.position.add( this.direction.multiplyScalar(this.speed));
+            //this.particleMesh.rotation.set(this.rot.x, this.rot.y, this.rot.z);
+            this.particleMesh.position.set(this.cube.position.x, this.cube.position.y, this.cube.position.z);
+            console.log(this.cube.position);
         }
-        console.log(this.particleMesh.position);
     }
 }
-
