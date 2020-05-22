@@ -3,6 +3,7 @@ import { removeFromScene } from '../sceneController.js'
 
 var chunk = [];
 var chunks = [];
+var chunkMap = [];
 
 var vertices = [];
 
@@ -14,6 +15,8 @@ var numChunks = 0;
 var lastVertDis = 0;
 var lastXSize = 0;
 var lastZSize = 0;
+
+var startMapSize = 2;
 
 var options = {
   vertDistance: 1,
@@ -47,49 +50,83 @@ function UserInterface(){
 }
 
 function CreateWorld(){
-  CreateShape();
-  CreateShape('up');
-  CreateShape('left');
-}
+  // CreateShape();
+  // CreateShape('up');
+  // CreateShape('left');
 
-function CreateShape(direction){
+  //startMapSize *=3;
 
-  if (direction == 'up'){
-    var i = 0;
-    for (var z = 0; z <= options.zSize; z++){
-      for (var x = 0; x <= options.xSize; x++){
-        var yNoise = Math.random() * options.amplitude;
-        if ( z == 0 ){
-          vertices[i] = vertices[(options.zSize * options.zSize + options.zSize) + i];
-        } else {
-          vertices[i] = new THREE.Vector3(x * options.vertDistance, yNoise, (z * options.vertDistance) + (options.zSize * options.vertDistance));
-        }
-        i++;
-      }
-    }
-  } else if (direction == 'left') {
-    var i = 0;
-    for (var z = 0; z <= options.zSize; z++){
-      for (var x = 0; x <= options.xSize; x++){
-        var yNoise = Math.random() * options.amplitude;
-        if ( x == 0 ){
-          vertices[i] = vertices[i+20];
-        } else {
-          vertices[i] = new THREE.Vector3((x * options.vertDistance) + (options.xSize * options.vertDistance), yNoise, (z * options.vertDistance) + (options.zSize * options.vertDistance));
-        }
-        i++;
-      }
-    }
-  } else {
-    var i = 0;
-    for (var z = 0; z <= options.zSize; z++){
-      for (var x = 0; x <= options.xSize; x++){
-        var yNoise = Math.random() * options.amplitude;
-        vertices[i] = new THREE.Vector3(x* options.vertDistance, yNoise, z* options.vertDistance);
-        i++;
-      }
+  for (var i = 0; i < startMapSize; i++){
+    for (var j = 0; j < startMapSize; j++){
+      var xPos = ( options.vertDistance * options.xSize ) * j;
+      var zPos = ( options.vertDistance * options.zSize ) * i;
+      // chunkMap[i] = [];
+      // chunkMap[i][j] = 'X';
+
+      chunkMap.push([i,j]);
+      chunkMap[i][j] = 'x';
+
+      CreateShape(xPos, zPos);
     }
   }
+
+  PrintChunkMap();
+
+}
+
+function PrintChunkMap(){
+  var text = "";
+  for ( var a = 0; a < startMapSize; a++){
+    for ( var b = 0; b < startMapSize; b++){
+      text += chunkMap[a][b];
+      text += "  ";
+    }
+    console.log(a + ': ' + text);
+    text = '';
+  }
+}
+
+function CreateShape(xPos, zPos){
+
+  // if (direction == 'up'){
+  //   var i = 0;
+  //   for (var z = 0; z <= options.zSize; z++){
+  //     for (var x = 0; x <= options.xSize; x++){
+  //       var yNoise = Math.random() * options.amplitude;
+  //       if ( z == 0 ){
+  //         vertices[i] = vertices[(options.zSize * options.zSize + options.zSize) + i];
+  //       } else {
+  //         vertices[i] = new THREE.Vector3(x * options.vertDistance, yNoise, (z * options.vertDistance) + (options.zSize * options.vertDistance));
+  //       }
+  //       i++;
+  //     }
+  //   }
+  // } else if (direction == 'left') {
+  //   var i = 0;
+  //   for (var z = 0; z <= options.zSize; z++){
+  //     for (var x = 0; x <= options.xSize; x++){
+  //       var yNoise = Math.random() * options.amplitude;
+  //       if ( x == 0 ){
+  //         vertices[i] = vertices[i+20];
+  //       } else {
+  //         vertices[i] = new THREE.Vector3((x * options.vertDistance) + (options.xSize * options.vertDistance), yNoise, (z * options.vertDistance) + (options.zSize * options.vertDistance));
+  //       }
+  //       i++;
+  //     }
+  //   }
+  // } else {
+    var i = 0;
+    for (var z = 0; z <= options.zSize; z++){
+      for (var x = 0; x <= options.xSize; x++){
+        var yNoise = Math.random() * options.amplitude;
+
+
+
+        vertices[i] = new THREE.Vector3(xPos + x* options.vertDistance, yNoise, zPos + z* options.vertDistance);
+        i++;
+      }
+    }
+  //}
 
   RenderChunk();
   chunks.push(chunk);
