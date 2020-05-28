@@ -1,5 +1,5 @@
 export class ParticleGen {
-    constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen) {
+    constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes) {
         this.pos = pos;
         this.dir = dir;
         this.scene = scene;
@@ -10,11 +10,13 @@ export class ParticleGen {
         this.maxSpeed = maxSpeed;
         this.clock = new THREE.Clock();
         this.delta = this.clock.getDelta();
+        this.meshes = [];
+        this.meshes = meshes;
     }
 
     autoLoop(){
         this.delta = this.clock.getDelta();
-        if(this.autoGen){
+        if(this.autoGen && this.meshes.length != 0){
             if(this.particles.length < this.maxParticles){
                 this.generateParticle();
             }
@@ -22,22 +24,24 @@ export class ParticleGen {
         if(this.particles.length > 0){   
             for(var i = 0; i < this.particles.length; i++){
                 this.updateParticle(this.particles[i], this.delta);
+                this.updateOpacity(this.particles[i]);
                 this.lifetimeDec(this.particles[i], this.delta);   
                 this.checkLifetime(this.particles[i], i);
-                this.updateOpacity(this.particles[i]);
             }
         }
     }
 
     generateParticle(){
         //Generate particle
+        var meshLength = this.meshes.length;
         var particle = new Particle(
             this.pos, 
             new THREE.Vector3(1, 0, 0), 
-            this.dir, 
-            Math.floor(Math.random() * this.maxLifetime) + 1,
-            Math.floor(Math.random() * this.maxSpeed) + 1);
-
+            this.dir,
+            this.meshes[Math.floor(Math.random() * meshLength)],
+            Math.random() * this.maxLifetime,
+            Math.random() * this.maxSpeed);
+            //;
         this.particles.push(particle);
         this.addToScene(particle);
     }
@@ -91,11 +95,15 @@ export class ParticleGen {
     setPos(Pos){
         this.pos = Pos;
     }
+
+    setDir(Dir){
+        this.dir = Dir;
+    }
 }
 
 //Export for testing purposes!
 export class Particle{
-    constructor(pos, rot, dir, lifetime, initSpeed){
+    constructor(pos, rot, dir, mesh, lifetime, initSpeed){
         //Fields
         this.pos = pos;
         this.rot = rot;
@@ -104,31 +112,14 @@ export class Particle{
         this.initialLifetime = lifetime;
         this.initSpeed = initSpeed;
         this.speed = initSpeed;
-        this.geometry = new THREE.Geometry();
-        this.material = new THREE.MeshNormalMaterial( );// {color: 0x00ff00}
-        this.particleMesh = null;
+        // this.geometry = new THREE.Geometry();
+        // this.material = new THREE.MeshNormalMaterial( );// {color: 0x00ff00}
+        this.particleMesh = new THREE.Mesh(mesh[0].clone(), mesh[1].clone());
         this.direction = dir;
         this.cubeGeometry = new THREE.BoxGeometry(0.1,0.1,0.1);
         this.cubeMat = new THREE.MeshNormalMaterial();
         this.cubeMat.visible = true
         this.cube = new THREE.Mesh( this.cubeGeometry, this.cubeMat );
-
-        //messy triangle gen
-        var v1 = new THREE.Vector3(0,0,0);
-        var v2 = new THREE.Vector3(1,0,0);
-        var v3 = new THREE.Vector3(1,1,0);
-        this.geometry.vertices.push(v1);
-        this.geometry.vertices.push(v2);
-        this.geometry.vertices.push(v3);
-        this.geometry.faces.push( new THREE.Face3(0, 1, 2) );   
-        this.geometry.computeFaceNormals();
-        this.material.side = THREE.DoubleSide;
-        this.material.transparent = true;
-        this.material.wireframe = false;
-        this.geometry.translate( -0.5, -0.5, 0 );
-
-        //Combine to make mesh
-        this.particleMesh = new THREE.Mesh( this.geometry, this.material );
 
         //Random starting rotation
         this.rot = new THREE.Vector3(Math.random() * 10, Math.random(), Math.random() * 50);
@@ -157,12 +148,9 @@ export class Particle{
     }
 
     setOpacity(){
-        if(this.lifetime/this.initialLifetime < 0){
-            this.particleMesh.material.opacity = 0;
-        }
-        else{
-            this.particleMesh.material.opacity = this.lifetime/this.initialLifetime;
-        }
+        this.particleMesh.material.opacity = (this.lifetime)/this.initialLifetime;
+        console.log((this.lifetime)/this.initialLifetime);
+        
     }
 
     setCurrentSpeed(){

@@ -1,6 +1,7 @@
 import { Ship, GetShip } from '../ship.js';
-import { cameraTracking } from '../cameraTracking.js'
-import { getCamera } from '../cameraTracking.js'
+import { cameraTracking } from '../cameraTracking.js';
+import { getCamera } from '../cameraTracking.js';
+import { ParticleGen } from '../particleGeneration.js';
 
 var scene = new THREE.Scene();
 
@@ -17,9 +18,39 @@ document.body.appendChild( renderer.domElement );
 
 //var isMouseDown = false;
 
+//SOME PARTICLE MESHES, You need to supply a geometry and a material.
+var particleMeshes = [];
+var geometry = new THREE.Geometry();
+var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );// {color: 0x00ff00}
+
+var v1 = new THREE.Vector3(0,0,0);
+var v2 = new THREE.Vector3(1,0,0);
+var v3 = new THREE.Vector3(1,1,0);
+geometry.vertices.push(v1);
+geometry.vertices.push(v2);
+geometry.vertices.push(v3);
+geometry.faces.push( new THREE.Face3(0, 1, 2) );   
+geometry.computeFaceNormals();
+material.side = THREE.DoubleSide;
+material.transparent = true;
+material.wireframe = false;
+geometry.translate( -0.5, -0.5, 0 );
+
+particleMeshes.push([geometry, material]);
+
+material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+material.side = THREE.DoubleSide;
+material.transparent = true;
+material.wireframe = false;
+geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
+particleMeshes.push([geometry, material]);
+
 var spaceShip = new Ship(Pos, Dir);
 var camera = new cameraTracking(renderer, scene);
+//pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes
+var particleGen = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0), 5, 5, 0.1, scene, true, particleMeshes );
 scene.add( GetShip() );
+
 
 // var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
 // keyLight.position.set(0, 0, 0);
@@ -63,7 +94,6 @@ var directionLight = new THREE.DirectionalLight(
 directionLight.castShadow = true;
 scene.add(directionLight);
 
-
 var groundTexture = new THREE.TextureLoader().load( "textures/grass.jpg" );
 groundTexture.wrapS = THREE.RepeatWrapping;
 groundTexture.wrapT = THREE.RepeatWrapping;
@@ -88,6 +118,8 @@ var animate = function () {
   // if ( isMouseDown ) {
 	//    controls.update();
   //  }
+  particleGen.autoLoop();
+
   UpdateShip();
 	renderer.render(scene, getCamera());
 };
