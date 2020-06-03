@@ -1,8 +1,12 @@
 import { Ship, GetShip } from '../ship.js';
-import { cameraTracking } from '../cameraTracking.js'
-import { getCamera } from '../cameraTracking.js'
+import { cameraTracking } from '../cameraTracking.js';
+import { getCamera } from '../cameraTracking.js';
+import { ParticleGen } from '../particleGeneration.js';
 
 var scene = new THREE.Scene();
+export function getScene(){
+	return scene;
+}
 
 const clock = new THREE.Clock();
 
@@ -17,9 +21,13 @@ document.body.appendChild( renderer.domElement );
 
 //var isMouseDown = false;
 
+
+
 var spaceShip = new Ship(Pos, Dir);
 var camera = new cameraTracking(renderer, scene);
+//pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes
 scene.add( GetShip() );
+
 
 // var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
 // keyLight.position.set(0, 0, 0);
@@ -63,7 +71,6 @@ var directionLight = new THREE.DirectionalLight(
 directionLight.castShadow = true;
 scene.add(directionLight);
 
-
 var groundTexture = new THREE.TextureLoader().load( "textures/grass.jpg" );
 groundTexture.wrapS = THREE.RepeatWrapping;
 groundTexture.wrapT = THREE.RepeatWrapping;
@@ -88,13 +95,14 @@ var animate = function () {
   // if ( isMouseDown ) {
 	//    controls.update();
   //  }
+
   UpdateShip();
 	renderer.render(scene, getCamera());
 };
 
 function UpdateShip(){
   var ship = GetShip();
-
+  	scene.updateMatrixWorld();
 	ship.castShadow = true;
 	ship.receiveShadow = true;
 

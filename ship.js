@@ -1,3 +1,6 @@
+import { ParticleGen } from '../particleGeneration.js';
+import { getScene } from '../sceneController.js'
+
 const clock = new THREE.Clock();
 var delta = clock.getDelta();
 
@@ -15,7 +18,7 @@ var increasePitch = false;
 
 var speed = 0;
 var minSpeed = 0;
-var maxSpeed = 100;
+var maxSpeed = 1000;
 
 var rollSpeed = 1000;
 var yawSpeed = 350;
@@ -26,8 +29,50 @@ var pitchSpeed = 300;
 
 var direction = new THREE.Vector3();
 
-var cubeA;
 var initialise = false;
+
+var boosterParticleLeft;
+var boosterParticleRight;
+var boosterParticleUpper;
+var isInitialised;
+
+//SOME PARTICLE MESHES, You need to supply a geometry and a material.
+var particleMeshes = [];
+var geometry = new THREE.Geometry();
+var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );// {color: 0x00ff00}
+
+//TRIANGLE PARTICLE
+var v1 = new THREE.Vector3(0,0,0);
+var v2 = new THREE.Vector3(1,0,0);
+var v3 = new THREE.Vector3(1,1,0);
+geometry.vertices.push(v1);
+geometry.vertices.push(v2);
+geometry.vertices.push(v3);
+geometry.faces.push( new THREE.Face3(0, 1, 2) );   
+geometry.computeFaceNormals();
+geometry.translate( -0.5, -0.5, 0 );
+geometry.scale(0.4, 0.4, 0.4);
+material.side = THREE.DoubleSide;
+material.transparent = true;
+material.wireframe = false;
+particleMeshes.push([geometry, material]);
+
+//CUBE PARTICLE
+material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+material.side = THREE.DoubleSide;
+material.transparent = true;
+material.wireframe = false;
+geometry = new THREE.BoxGeometry( 1, 1, 1 );
+geometry.scale(0.4, 0.4, 0.4);
+particleMeshes.push([geometry, material]);
+//END OF PARTICLE MESHES
+
+//POSITIONING FOR PARITCLE GENERATORS
+var pivotLeft = new THREE.Object3D();
+var pivotRight = new THREE.Object3D();
+var pivotUpper = new THREE.Object3D();
+//END OF SECTION FOR POSITIONING
+
 
 export function Ship(position, direction){
   this.Pos = position;
@@ -52,7 +97,7 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   mtlLoader.load( textureFile , function (materials) {    //load textures
 
   materials.preload();
-
+  
   var objLoader = new THREE.OBJLoader();
   objLoader.setMaterials(materials);        //assign textures
   objLoader.load( modelPath.concat( modelFile ) , function (object) {
@@ -63,7 +108,16 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
     });
   });
 
-  ship.rotation.reorder = "YXZ"; 
+  ship.rotation.reorder = "YXZ";
+
+  //Setting up particle generators.
+  pivotLeft.position.set(ship.position.x + 0.75, ship.position.y + 0.2, ship.position.z - 2);
+  pivotRight.position.set(ship.position.x - 0.75, ship.position.y + 0.2, ship.position.z - 2);
+  pivotUpper.position.set(ship.position.x , ship.position.y + 0.75, ship.position.z - 2);
+  boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 5, 0.1, getScene(), true, particleMeshes );
+  boosterParticleRight = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 5, 0.1, getScene(), true, particleMeshes );
+  boosterParticleUpper = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 5, 0.1, getScene(), true, particleMeshes );
+  isInitialised = true;
 }
 
 export function GetShip(){
@@ -78,13 +132,52 @@ function animate(){
 
   if ( speed > 0 ) {
     ship.getWorldDirection( direction );
-
+    
     ship.position.add(direction.multiplyScalar(speed * delta));
 
     Pos = ship.position;
     Dir = ship.rotation;
 
     updateShip();
+  }
+
+  if(isInitialised){ 
+    ship.add(pivotLeft);
+    ship.add(pivotRight);
+    ship.add(pivotUpper);
+
+    if(speed < 5){
+      boosterParticleLeft.setMaxParticles(5);
+      boosterParticleRight.setMaxParticles(5);
+      boosterParticleUpper.setMaxParticles(5);
+    }
+    else{
+      boosterParticleLeft.setMaxParticles(speed);
+      boosterParticleRight.setMaxParticles(speed);
+      boosterParticleUpper.setMaxParticles(speed);  
+    }
+    //Setting Position
+    var posVec1 = new THREE.Vector3();
+    var posVec2 = new THREE.Vector3();
+    var posVec3 = new THREE.Vector3();
+    ship.updateMatrixWorld();
+    posVec1.setFromMatrixPosition( pivotLeft.matrixWorld );
+    boosterParticleLeft.setPos(posVec1);
+    posVec2.setFromMatrixPosition( pivotRight.matrixWorld );
+    boosterParticleRight.setPos(posVec2);
+    posVec3.setFromMatrixPosition( pivotUpper.matrixWorld );
+    boosterParticleUpper.setPos(posVec3);
+
+    //FOR SOME REASON YOU ONLY HAVE TO ADD PI TO THE X AXIS REEEEEEEEEEEEEE//Setting Direction
+    var dir = new THREE.Vector3(ship.rotation.x + Math.PI, ship.rotation.y, ship.rotation.z);
+    boosterParticleLeft.setDir(dir.clone());
+    boosterParticleRight.setDir(dir.clone());
+    boosterParticleUpper.setDir(dir.clone());
+
+    //Update Particle generators
+    boosterParticleLeft.autoLoop();
+    boosterParticleRight.autoLoop();
+    boosterParticleUpper.autoLoop();
   }
 
   if ( !moveLeft && !moveRight && Dir.z != 0){
