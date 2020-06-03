@@ -92,12 +92,12 @@ export class ParticleGen {
         this.autoGen = !this.autoGen;
     }
 
-    setPos(Pos){
-        this.pos = Pos;
+    setPos(position){
+        this.pos = position;
     }
 
-    setDir(Dir){
-        this.dir = Dir;
+    setDir(direction){
+        this.dir = direction;
     }
 }
 
@@ -126,7 +126,7 @@ export class Particle{
 
         //Set cube to same position as particle, but correct orientation.
         this.cube.position.set(this.pos.x, this.pos.y, this.pos.z);
-        this.cube.rotation.set(this.dir.x, this.dir.y, this.dir.z);
+        this.cube.rotation.set(this.dir.x, this.dir.y, this.dir.z, "YXZ");
     }
 
     //return lifetime
@@ -148,9 +148,7 @@ export class Particle{
     }
 
     setOpacity(){
-        this.particleMesh.material.opacity = (this.lifetime)/this.initialLifetime;
-        console.log((this.lifetime)/this.initialLifetime);
-        
+        this.particleMesh.material.opacity = (this.lifetime)/this.initialLifetime;        
     }
 
     setCurrentSpeed(){
