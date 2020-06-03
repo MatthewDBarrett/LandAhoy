@@ -118,6 +118,20 @@ function UpdateShip(){
 }
 
 animate();
+
+//this fucntion is called when the window is resized
+var MyResize = function ( )
+{
+  var width = window.innerWidth;
+  var height = window.innerHeight;
+  renderer.setSize(width,height);
+  getCamera().aspect = width/height;
+  getCamera().updateProjectionMatrix();
+  renderer.render(scene,camera);
+};
+
+//link the resize of the window to the update of the camera
+window.addEventListener( 'resize', MyResize);
 // document.addEventListener( 'keydown', onKeyDown, false );
 // document.addEventListener( 'keyup', onKeyUp, false );
 // document.addEventListener( 'mousedown', onMouseDown, false );
