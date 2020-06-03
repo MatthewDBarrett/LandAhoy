@@ -99,6 +99,10 @@ export class ParticleGen {
     setDir(direction){
         this.dir = direction;
     }
+
+    setMaxParticles(newMaxParticles){
+        this.maxParticles = newMaxParticles;
+    }
 }
 
 //Export for testing purposes!

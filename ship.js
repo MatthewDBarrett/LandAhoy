@@ -145,7 +145,17 @@ function animate(){
     ship.add(pivotLeft);
     ship.add(pivotRight);
     ship.add(pivotUpper);
-    
+
+    if(speed < 5){
+      boosterParticleLeft.setMaxParticles(5);
+      boosterParticleRight.setMaxParticles(5);
+      boosterParticleUpper.setMaxParticles(5);
+    }
+    else{
+      boosterParticleLeft.setMaxParticles(speed);
+      boosterParticleRight.setMaxParticles(speed);
+      boosterParticleUpper.setMaxParticles(speed);  
+    }
     //Setting Position
     var posVec1 = new THREE.Vector3();
     var posVec2 = new THREE.Vector3();
