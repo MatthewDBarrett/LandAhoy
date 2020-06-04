@@ -1,6 +1,7 @@
 import { Ship, GetShip } from '../ship.js';
-import { cameraTracking } from '../cameraTracking.js';
-import { getCamera } from '../cameraTracking.js';
+import { cameraTracking } from '../cameraTracking.js'
+import { getCamera } from '../cameraTracking.js'
+import { terrainGenerator } from '../terrainGenerator.js'
 import { ParticleGen } from '../particleGeneration.js';
 
 var scene = new THREE.Scene();
@@ -27,6 +28,35 @@ var spaceShip = new Ship(Pos, Dir);
 var camera = new cameraTracking(renderer, scene);
 //pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes
 scene.add( GetShip() );
+
+let materialArray = [];
+// let texture_ft = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_ft.jpg');
+// let texture_bk = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_bk.jpg');
+// let texture_up = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_up.jpg');
+// let texture_dn = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_dn.jpg');
+// let texture_rt = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_rt.jpg');
+// let texture_lf = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_lf.jpg');
+
+let texture_ft = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_ft.jpg');
+let texture_bk = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_bk.jpg');
+let texture_up = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_up.jpg');
+let texture_dn = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_dn.jpg');
+let texture_rt = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_rt.jpg');
+let texture_lf = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_lf.jpg');
+
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_ft }));
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_bk }));
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_up }));
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_dn }));
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_rt }));
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_lf }));
+
+for (let i = 0; i < 6; i++)
+  materialArray[i].side = THREE.BackSide;
+
+let skyboxGeo = new THREE.BoxGeometry( 10000, 10000, 10000);
+let skybox = new THREE.Mesh( skyboxGeo, materialArray );
+scene.add( skybox );
 
 
 // var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
@@ -71,24 +101,7 @@ var directionLight = new THREE.DirectionalLight(
 directionLight.castShadow = true;
 scene.add(directionLight);
 
-var groundTexture = new THREE.TextureLoader().load( "textures/grass.jpg" );
-groundTexture.wrapS = THREE.RepeatWrapping;
-groundTexture.wrapT = THREE.RepeatWrapping;
-groundTexture.repeat.x = 20;
-groundTexture.repeat.y = 20;
-
-var geometry = new THREE.PlaneGeometry( 1, 1, 1 );
-var material = new THREE.MeshPhongMaterial( {map: groundTexture } );
-var ground = new THREE.Mesh( geometry, material );
-
-ground.position.set(0,-5,0);
-ground.scale.set(400,400,1);
-ground.rotation.x = -Math.PI/2;
-
-ground.castShadow = false;
-ground.receiveShadow = true;
-
-scene.add( ground );
+var terrain = new terrainGenerator();
 
 var animate = function () {
 	requestAnimationFrame( animate );
@@ -109,7 +122,7 @@ function UpdateShip(){
 	var direction = new THREE.Vector3();
 
 	ship.getWorldDirection( direction );
-	
+
 	//camera.position.set(ship.position.x, ship.position.y + 4, ship.position.z - 8);
 
 
@@ -117,7 +130,29 @@ function UpdateShip(){
   scene.add( ship );
 }
 
+export function addToScene(object){
+	scene.add( object );
+}
+
+export function removeFromScene(object){
+	scene.remove( object );
+}
+
 animate();
+
+//this fucntion is called when the window is resized
+var MyResize = function ( )
+{
+  var width = window.innerWidth;
+  var height = window.innerHeight;
+  renderer.setSize(width,height);
+  getCamera().aspect = width/height;
+  getCamera().updateProjectionMatrix();
+  renderer.render(scene,camera);
+};
+
+//link the resize of the window to the update of the camera
+window.addEventListener( 'resize', MyResize);
 // document.addEventListener( 'keydown', onKeyDown, false );
 // document.addEventListener( 'keyup', onKeyUp, false );
 // document.addEventListener( 'mousedown', onMouseDown, false );

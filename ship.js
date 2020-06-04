@@ -48,7 +48,7 @@ var v3 = new THREE.Vector3(1,1,0);
 geometry.vertices.push(v1);
 geometry.vertices.push(v2);
 geometry.vertices.push(v3);
-geometry.faces.push( new THREE.Face3(0, 1, 2) );   
+geometry.faces.push( new THREE.Face3(0, 1, 2) );
 geometry.computeFaceNormals();
 geometry.translate( -0.5, -0.5, 0 );
 geometry.scale(0.4, 0.4, 0.4);
@@ -97,7 +97,7 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   mtlLoader.load( textureFile , function (materials) {    //load textures
 
   materials.preload();
-  
+
   var objLoader = new THREE.OBJLoader();
   objLoader.setMaterials(materials);        //assign textures
   objLoader.load( modelPath.concat( modelFile ) , function (object) {
@@ -132,7 +132,7 @@ function animate(){
 
   if ( speed > 0 ) {
     ship.getWorldDirection( direction );
-    
+
     ship.position.add(direction.multiplyScalar(speed * delta));
 
     Pos = ship.position;
@@ -141,7 +141,7 @@ function animate(){
     updateShip();
   }
 
-  if(isInitialised){ 
+  if(isInitialised){
     ship.add(pivotLeft);
     ship.add(pivotRight);
     ship.add(pivotUpper);
@@ -154,7 +154,7 @@ function animate(){
     else{
       boosterParticleLeft.setMaxParticles(speed);
       boosterParticleRight.setMaxParticles(speed);
-      boosterParticleUpper.setMaxParticles(speed);  
+      boosterParticleUpper.setMaxParticles(speed);
     }
     //Setting Position
     var posVec1 = new THREE.Vector3();

@@ -28,10 +28,10 @@ var scene;
 
 export function cameraTracking(renderer, threeJSscene) {   //constructor
   //save scene
-  scene = threeJSscene; 
-  
+  scene = threeJSscene;
+
   //Initialise Camera.
-  camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+  camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 10000 );
   camera.position.z = 10;
 
   //Initialise Controls for OrbitControls and initial camera offset position.
@@ -61,7 +61,7 @@ export function cameraTracking(renderer, threeJSscene) {   //constructor
   group.add( cubeA );
   group.add( cubeB );
   scene.add( group );
-  
+
   //Set Initialise flag to true to finish up.
   isInitialized = true;
 }
@@ -73,14 +73,14 @@ function animate() {   //Loop
     if(orbitCam){
       GetShip().add(getCamera());
       controls.enabled = true;
-    } 
+    }
     else{
       //Remove the camera from the ship, add it to the cube.
       GetShip().remove(getCamera());
-      
+
       //remove control from orbit, and update the offset.
       updateOffset();
-      
+
       //Extract world position from cubeB and cubeA
       scene.updateMatrixWorld();
       group.updateMatrixWorld();
@@ -103,7 +103,7 @@ function updateOffset(){
   shipPos = getShipPos();
   shipDir = getShipDir();
   group.position.set(shipPos.x, shipPos.y, shipPos.z);
-  group.rotation.set(shipDir.x, shipDir.y, shipDir.z);
+  group.rotation.set(shipDir.x, shipDir.y, shipDir.z, "YXZ");
 }
 
 export function getCamera(){
