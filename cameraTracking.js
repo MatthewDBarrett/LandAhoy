@@ -31,7 +31,7 @@ export function cameraTracking(renderer, threeJSscene) {   //constructor
   scene = threeJSscene;
 
   //Initialise Camera.
-  camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+  camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 10000 );
   camera.position.z = 10;
 
   //Initialise Controls for OrbitControls and initial camera offset position.

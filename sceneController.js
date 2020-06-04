@@ -29,6 +29,35 @@ var camera = new cameraTracking(renderer, scene);
 //pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes
 scene.add( GetShip() );
 
+let materialArray = [];
+// let texture_ft = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_ft.jpg');
+// let texture_bk = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_bk.jpg');
+// let texture_up = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_up.jpg');
+// let texture_dn = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_dn.jpg');
+// let texture_rt = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_rt.jpg');
+// let texture_lf = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_lf.jpg');
+
+let texture_ft = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_ft.jpg');
+let texture_bk = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_bk.jpg');
+let texture_up = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_up.jpg');
+let texture_dn = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_dn.jpg');
+let texture_rt = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_rt.jpg');
+let texture_lf = new THREE.TextureLoader().load( '/textures/skybox_divine/divine_lf.jpg');
+
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_ft }));
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_bk }));
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_up }));
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_dn }));
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_rt }));
+materialArray.push(new THREE.MeshBasicMaterial( { map: texture_lf }));
+
+for (let i = 0; i < 6; i++)
+  materialArray[i].side = THREE.BackSide;
+
+let skyboxGeo = new THREE.BoxGeometry( 10000, 10000, 10000);
+let skybox = new THREE.Mesh( skyboxGeo, materialArray );
+scene.add( skybox );
+
 
 // var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
 // keyLight.position.set(0, 0, 0);
