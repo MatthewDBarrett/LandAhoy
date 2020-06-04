@@ -35,8 +35,10 @@ export class ParticleGen {
     generateParticle(){
         var deviateDir = new THREE.Vector3();
         if(this.isDeviate){
+            var max = 0.75;
+            var min = -0.75;
             deviateDir = this.dir.clone();
-            deviateDir.set(deviateDir.x + ((Math.random() - 0.5)/2), deviateDir.y + ((Math.random() - 0.5)/2), deviateDir.z);
+            deviateDir.set(deviateDir.x + (Math.random() * (max - min)) + min, deviateDir.y + (Math.random() * (max - min)) + min, deviateDir.z);
         }
 
         //Generate particle
@@ -48,7 +50,6 @@ export class ParticleGen {
             this.meshes[Math.floor(Math.random() * meshLength)],
             Math.random() * this.maxLifetime,
             Math.random() * this.maxSpeed);
-            //;
         this.particles.push(particle);
         this.addToScene(particle);
     }
