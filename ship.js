@@ -65,6 +65,24 @@ material.wireframe = false;
 geometry = new THREE.BoxGeometry( 1, 1, 1 );
 geometry.scale(0.4, 0.4, 0.4);
 particleMeshes.push([geometry, material]);
+
+//CYLINDER PARTICLE
+material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+material.side = THREE.DoubleSide;
+material.transparent = true;
+material.wireframe = false;
+geometry = new THREE.CylinderBufferGeometry(0.25, 0.25, 1, 10);
+geometry.scale(0.4, 0.4, 0.4);
+particleMeshes.push([geometry, material]);
+
+//ICOSAHEDRON PARTICLE
+material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+material.side = THREE.DoubleSide;
+material.transparent = true;
+material.wireframe = false;
+geometry = new THREE.IcosahedronBufferGeometry(1, 0);
+geometry.scale(0.3, 0.3, 0.3);
+particleMeshes.push([geometry, material]);
 //END OF PARTICLE MESHES
 
 //POSITIONING FOR PARITCLE GENERATORS
@@ -114,9 +132,9 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   pivotLeft.position.set(ship.position.x + 0.75, ship.position.y + 0.2, ship.position.z - 2);
   pivotRight.position.set(ship.position.x - 0.75, ship.position.y + 0.2, ship.position.z - 2);
   pivotUpper.position.set(ship.position.x , ship.position.y + 0.75, ship.position.z - 2);
-  boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 5, 0.1, getScene(), true, particleMeshes );
-  boosterParticleRight = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 5, 0.1, getScene(), true, particleMeshes );
-  boosterParticleUpper = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 5, 0.1, getScene(), true, particleMeshes );
+  boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, getScene(), true, particleMeshes, true );
+  boosterParticleRight = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, getScene(), true, particleMeshes, true );
+  boosterParticleUpper = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, getScene(), true, particleMeshes, true );
   isInitialised = true;
 }
 
@@ -147,14 +165,14 @@ function animate(){
     ship.add(pivotUpper);
 
     if(speed < 5){
-      boosterParticleLeft.setMaxParticles(5);
-      boosterParticleRight.setMaxParticles(5);
-      boosterParticleUpper.setMaxParticles(5);
+      boosterParticleLeft.setMaxParticles(10);
+      boosterParticleRight.setMaxParticles(10);
+      boosterParticleUpper.setMaxParticles(10);
     }
     else{
-      boosterParticleLeft.setMaxParticles(speed);
-      boosterParticleRight.setMaxParticles(speed);
-      boosterParticleUpper.setMaxParticles(speed);
+      boosterParticleLeft.setMaxParticles(speed * 10);
+      boosterParticleRight.setMaxParticles(speed * 10);
+      boosterParticleUpper.setMaxParticles(speed * 10);
     }
     //Setting Position
     var posVec1 = new THREE.Vector3();
