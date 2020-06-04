@@ -37,7 +37,6 @@ export class ParticleGen {
         if(this.isDeviate){
             deviateDir = this.dir.clone();
             deviateDir.set(deviateDir.x + ((Math.random() - 0.5)/2), deviateDir.y + ((Math.random() - 0.5)/2), deviateDir.z);
-            console.log(deviateDir);
         }
 
         //Generate particle

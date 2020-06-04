@@ -132,9 +132,9 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   pivotLeft.position.set(ship.position.x + 0.75, ship.position.y + 0.2, ship.position.z - 2);
   pivotRight.position.set(ship.position.x - 0.75, ship.position.y + 0.2, ship.position.z - 2);
   pivotUpper.position.set(ship.position.x , ship.position.y + 0.75, ship.position.z - 2);
-  boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 5, 0.1, getScene(), true, particleMeshes, true );
-  boosterParticleRight = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 5, 0.1, getScene(), true, particleMeshes, true );
-  boosterParticleUpper = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 5, 0.1, getScene(), true, particleMeshes, true );
+  boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, getScene(), true, particleMeshes, true );
+  boosterParticleRight = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, getScene(), true, particleMeshes, true );
+  boosterParticleUpper = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, getScene(), true, particleMeshes, true );
   isInitialised = true;
 }
 
@@ -165,14 +165,14 @@ function animate(){
     ship.add(pivotUpper);
 
     if(speed < 5){
-      boosterParticleLeft.setMaxParticles(5);
-      boosterParticleRight.setMaxParticles(5);
-      boosterParticleUpper.setMaxParticles(5);
+      boosterParticleLeft.setMaxParticles(10);
+      boosterParticleRight.setMaxParticles(10);
+      boosterParticleUpper.setMaxParticles(10);
     }
     else{
-      boosterParticleLeft.setMaxParticles(speed);
-      boosterParticleRight.setMaxParticles(speed);
-      boosterParticleUpper.setMaxParticles(speed);
+      boosterParticleLeft.setMaxParticles(speed * 10);
+      boosterParticleRight.setMaxParticles(speed * 10);
+      boosterParticleUpper.setMaxParticles(speed * 10);
     }
     //Setting Position
     var posVec1 = new THREE.Vector3();
