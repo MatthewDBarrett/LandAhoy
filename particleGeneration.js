@@ -1,5 +1,5 @@
 export class ParticleGen {
-    constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes) {
+    constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes, isDeviate) {
         this.pos = pos;
         this.dir = dir;
         this.scene = scene;
@@ -12,6 +12,7 @@ export class ParticleGen {
         this.delta = this.clock.getDelta();
         this.meshes = [];
         this.meshes = meshes;
+        this.isDeviate = isDeviate;
     }
 
     autoLoop(){
@@ -32,12 +33,19 @@ export class ParticleGen {
     }
 
     generateParticle(){
+        var deviateDir = new THREE.Vector3();
+        if(this.isDeviate){
+            deviateDir = this.dir.clone();
+            deviateDir.set(deviateDir.x + ((Math.random() - 0.5)/2), deviateDir.y + ((Math.random() - 0.5)/2), deviateDir.z);
+            console.log(deviateDir);
+        }
+
         //Generate particle
         var meshLength = this.meshes.length;
         var particle = new Particle(
             this.pos, 
             new THREE.Vector3(1, 0, 0), 
-            this.dir,
+            (this.isDeviate ? deviateDir : this.dir),
             this.meshes[Math.floor(Math.random() * meshLength)],
             Math.random() * this.maxLifetime,
             Math.random() * this.maxSpeed);
