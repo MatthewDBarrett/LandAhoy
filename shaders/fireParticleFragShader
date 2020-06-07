@@ -1,0 +1,12 @@
+uniform float opacity;
+uniform vec3 color1;
+uniform vec3 color2;
+
+void main(){
+    vec3 col;
+    col.r=0.0;
+    col.g=0.0;
+    col.b=0.0;
+    float multiplier= abs(sin(gl_FragCoord.x/5.0)*sin(gl_FragCoord.y/5.0));
+	gl_FragColor = vec4(multiplier*col,opacity);
+}

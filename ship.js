@@ -36,10 +36,24 @@ var boosterParticleRight;
 var boosterParticleUpper;
 var isInitialised;
 
+var fireVertShader = loadFile('./shaders/fireParticleVertShader');
+var fireFragShader = loadFile('./shaders/fireParticleFragShader');
+var uniforms = {
+  opacity : {value : 0.2},
+  color1 : {value : new THREE.Vector3()},
+  color2 : {value : new THREE.Vector3()}
+};
+
 //SOME PARTICLE MESHES, You need to supply a geometry and a material.
   var particleMeshes = [];
   var geometry = new THREE.Geometry();
-  var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );// {color: 0x00ff00}
+  var material = new THREE.ShaderMaterial();// {color: 0x00ff00}
+  material.vertexShader = fireVertShader;
+  material.fragmentShader = fireFragShader;
+  material.uniforms = uniforms;
+  material.side = THREE.DoubleSide;
+  material.transparent = true;
+  material.wireframe = false;
 
   //TRIANGLE PARTICLE
   var v1 = new THREE.Vector3(0,0,0);
@@ -52,34 +66,19 @@ var isInitialised;
   geometry.computeFaceNormals();
   geometry.translate( -0.5, -0.5, 0 );
   geometry.scale(0.4, 0.4, 0.4);
-  material.side = THREE.DoubleSide;
-  material.transparent = true;
-  material.wireframe = false;
   particleMeshes.push([geometry, material]);
 
   //CUBE PARTICLE
-  material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-  material.side = THREE.DoubleSide;
-  material.transparent = true;
-  material.wireframe = false;
   geometry = new THREE.BoxGeometry( 1, 1, 1 );
   geometry.scale(0.4, 0.4, 0.4);
   particleMeshes.push([geometry, material]);
 
   //CYLINDER PARTICLE
-  material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-  material.side = THREE.DoubleSide;
-  material.transparent = true;
-  material.wireframe = false;
   geometry = new THREE.CylinderBufferGeometry(0.25, 0.25, 1, 10);
   geometry.scale(0.4, 0.4, 0.4);
   particleMeshes.push([geometry, material]);
 
   //ICOSAHEDRON PARTICLE
-  material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-  material.side = THREE.DoubleSide;
-  material.transparent = true;
-  material.wireframe = false;
   geometry = new THREE.IcosahedronBufferGeometry(1, 0);
   geometry.scale(0.3, 0.3, 0.3);
   particleMeshes.push([geometry, material]);
@@ -336,6 +335,17 @@ var onKeyUp = function ( event ) {
       break;
   }
 };
+
+function loadFile(filePath) {
+  var result = null;
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("GET", filePath, false);
+  xmlhttp.send();
+  if (xmlhttp.status==200) {
+    result = xmlhttp.responseText;
+  }
+  return result;
+}
 
 document.addEventListener( 'keydown', onKeyDown, false );
 document.addEventListener( 'keyup', onKeyUp, false );

@@ -51,7 +51,8 @@ export class ParticleGen {
             (this.isDeviate ? deviateDir : this.dir),
             this.meshes[Math.floor(Math.random() * meshLength)],
             Math.random() * this.maxLifetime,
-            Math.random() * this.maxSpeed);
+            Math.random() * this.maxSpeed,
+            this.isRotate);
         this.particles.push(particle);
         this.addToScene(particle);
     }
@@ -177,11 +178,12 @@ export class Particle{
     }
 
     //update position
+    //update Shader state
     updateParticle(delta){
         if(this.isRotate){      
-            this.rot.x += 0.1;
-            this.rot.y += 0.1;
-            this.rot.z += 0.1;
+            this.rot.x += 0.05;
+            this.rot.y += 0.05;
+            this.rot.z += 0.05;
         }
 
         if(this.speed > 0){            
