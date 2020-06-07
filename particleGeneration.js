@@ -117,6 +117,8 @@ export class ParticleGen {
 }
 
 //Export for testing purposes!
+//THIS CLASS HAS ASSUMES THAT THE MESH BEING PASSED INTO IT IS A SHADERMATERIAL!
+//THIS NEEDS A SHADERMATERIAL TO WORK
 export class Particle{
     constructor(pos, rot, dir, mesh, lifetime, initSpeed, isRotate){
         //Fields
@@ -170,7 +172,7 @@ export class Particle{
     }
 
     setOpacity(){
-        this.particleMesh.material.opacity = (this.lifetime)/this.initialLifetime;        
+        this.particleMesh.material.opacity = (this.lifetime)/this.initialLifetime;
     }
 
     setCurrentSpeed(){
@@ -181,9 +183,9 @@ export class Particle{
     //update Shader state
     updateParticle(delta){
         if(this.isRotate){      
-            this.rot.x += 0.05;
-            this.rot.y += 0.05;
-            this.rot.z += 0.05;
+            this.rot.x += 0.1;
+            this.rot.y += 0.1;
+            this.rot.z += 0.1;
         }
 
         if(this.speed > 0){            
@@ -191,6 +193,36 @@ export class Particle{
             this.cube.position.add( this.direction.multiplyScalar(this.speed));
             this.particleMesh.rotation.set(this.rot.x, this.rot.y, this.rot.z, "YXZ");
             this.particleMesh.position.set(this.cube.position.x, this.cube.position.y, this.cube.position.z);
+        }
+
+        //I hate this as much as anyone else does, but I have to do this I'm sorry no time to contemplate
+        //Blue 62.0,101.0,192.0
+        //Yellow 220.0,226.0,34.0
+        //Orange 226.0,88.0,34.0
+        //Red 226.0,40.0,34.0
+        if(this.particleMesh.material.opacity > 0.75 ){
+            this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(62.0,101.0,192.0);
+            this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(220.0,226.0,34.0);
+            this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.75)/0.25;
+            this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+        }
+        else if(this.particleMesh.material.opacity > 0.5){
+            this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(62.0,101.0,192.0);
+            this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(220.0,226.0,34.0);
+            this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.5)/0.25;
+            this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+        }
+        else if(this.particleMesh.material.opacity > 0.25){
+            this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(220.0,226.0,34.0);
+            this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(226.0,88.0,34.0);
+            this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.25)/0.25;
+            this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+        }
+        else{
+            this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(226.0,40.0,34.0);
+            this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(226.0,40.0,34.0);
+            this.particleMesh.material.uniforms.colorlerp.value = 1.0;
+            this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
         }
     }
 }

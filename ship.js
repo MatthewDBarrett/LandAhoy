@@ -41,7 +41,8 @@ var fireFragShader = loadFile('./shaders/fireParticleFragShader');
 var uniforms = {
   opacity : {value : 0.2},
   color1 : {value : new THREE.Vector3()},
-  color2 : {value : new THREE.Vector3()}
+  color2 : {value : new THREE.Vector3()},
+  colorlerp : {value : 0.0}
 };
 
 //SOME PARTICLE MESHES, You need to supply a geometry and a material.
@@ -133,9 +134,9 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   pivotUpper.position.set(ship.position.x , ship.position.y + 0.75, ship.position.z - 2);
 
   //constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, autoGen, meshes, isDeviate, isRotate)
-  boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, true, particleMeshes, true, true );
-  boosterParticleRight = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, true, particleMeshes, true, true );
-  boosterParticleUpper = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, true, particleMeshes, true, true );
+  boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 1, 0.1, true, particleMeshes, true, true );
+  boosterParticleRight = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 1, 0.1, true, particleMeshes, true, true );
+  boosterParticleUpper = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 1, 0.1, true, particleMeshes, true, true );
   isInitialised = true;
 }
 
