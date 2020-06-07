@@ -29,6 +29,8 @@ var camera = new cameraTracking(renderer, scene);
 //pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes
 scene.add( GetShip() );
 
+//SKYBOX CODE
+
 let materialArray = [];
 // let texture_ft = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_ft.jpg');
 // let texture_bk = new THREE.TextureLoader().load( '/textures/skybox_arid/arid2_bk.jpg');
@@ -57,6 +59,12 @@ for (let i = 0; i < 6; i++)
 let skyboxGeo = new THREE.BoxGeometry( 10000, 10000, 10000);
 let skybox = new THREE.Mesh( skyboxGeo, materialArray );
 scene.add( skybox );
+
+//FOG CODE
+
+// var fogColor = new THREE.Color(0xffffff);
+// scene.background = fogColor;
+// scene.fog = new THREE.Fog(fogColor, 0.0025, 10000);
 
 
 // var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
@@ -127,7 +135,16 @@ function UpdateShip(){
 
 
 	//camera.lookAt(ship.position);
+
+	//console.log("ship position: " + ship.position.x + ", "+ ship.position.y + ", "+ ship.position.z);
+	UpdateSkyPos(ship.position.x, ship.position.y, ship.position.z);
+	//console.log("SKYBOX: " + skybox.position.x + ", "+ skybox.position.y + ", "+ skybox.position.z);
+
   scene.add( ship );
+}
+
+function UpdateSkyPos(x, y, z){
+	skybox.position.set( x, y, z );
 }
 
 export function addToScene(object){
