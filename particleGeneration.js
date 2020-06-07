@@ -1,8 +1,9 @@
+import { getScene } from "../sceneController.js"
+
 export class ParticleGen {
-    constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes, isDeviate) {
+    constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, autoGen, meshes, isDeviate, isRotate) {
         this.pos = pos;
         this.dir = dir;
-        this.scene = scene;
         this.particles = [];
         this.maxParticles = maxParticles;
         this.maxLifetime = maxLifetime;
@@ -13,6 +14,7 @@ export class ParticleGen {
         this.meshes = [];
         this.meshes = meshes;
         this.isDeviate = isDeviate;
+        this.isRotate = isRotate;
     }
 
     autoLoop(){
@@ -55,7 +57,7 @@ export class ParticleGen {
     }
 
     addToScene(particle){
-        this.scene.add(particle.getParticleMesh());
+        getScene().add(particle.getParticleMesh());
     }
 
     lifetimeDec(particle, delta){
@@ -85,7 +87,7 @@ export class ParticleGen {
     deleteParticleFromScene(particle){
         particle.particleMesh.geometry.dispose();
         particle.particleMesh.material.dispose();
-        this.scene.remove(particle.getParticleMesh());
+        getScene().remove(particle.getParticleMesh());
         particle.particleMesh = null;
     }
 
@@ -115,7 +117,7 @@ export class ParticleGen {
 
 //Export for testing purposes!
 export class Particle{
-    constructor(pos, rot, dir, mesh, lifetime, initSpeed){
+    constructor(pos, rot, dir, mesh, lifetime, initSpeed, isRotate){
         //Fields
         this.pos = pos;
         this.rot = rot;
@@ -124,6 +126,7 @@ export class Particle{
         this.initialLifetime = lifetime;
         this.initSpeed = initSpeed;
         this.speed = initSpeed;
+        this.isRotate = isRotate;
         // this.geometry = new THREE.Geometry();
         // this.material = new THREE.MeshNormalMaterial( );// {color: 0x00ff00}
         this.particleMesh = new THREE.Mesh(mesh[0].clone(), mesh[1].clone());
@@ -134,7 +137,13 @@ export class Particle{
         this.cube = new THREE.Mesh( this.cubeGeometry, this.cubeMat );
 
         //Random starting rotation
-        this.rot = new THREE.Vector3(Math.random() * 10, Math.random(), Math.random() * 50);
+        if(isRotate){
+            this.rot = new THREE.Vector3(Math.random() * 10, Math.random(), Math.random() * 50);
+        }   
+        else{
+            //No rotation if no rotation on particles
+            this.rot = dir;
+        }
 
         //Set cube to same position as particle, but correct orientation.
         this.cube.position.set(this.pos.x, this.pos.y, this.pos.z);
@@ -169,13 +178,16 @@ export class Particle{
 
     //update position
     updateParticle(delta){
-        this.rot.x += 0.1;
-        this.rot.y += 0.1;
-        this.rot.z += 0.1;
+        if(this.isRotate){      
+            this.rot.x += 0.1;
+            this.rot.y += 0.1;
+            this.rot.z += 0.1;
+        }
+
         if(this.speed > 0){            
             this.cube.getWorldDirection(this.direction);
             this.cube.position.add( this.direction.multiplyScalar(this.speed));
-            this.particleMesh.rotation.set(this.rot.x, this.rot.y, this.rot.z);
+            this.particleMesh.rotation.set(this.rot.x, this.rot.y, this.rot.z, "YXZ");
             this.particleMesh.position.set(this.cube.position.x, this.cube.position.y, this.cube.position.z);
         }
     }
