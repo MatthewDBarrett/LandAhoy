@@ -25,7 +25,7 @@ document.body.appendChild( renderer.domElement );
 
 
 var spaceShip = new Ship(Pos, Dir);
-var camera = new cameraTracking(renderer, scene);
+var camera = new cameraTracking(renderer);
 //pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes
 scene.add( GetShip() );
 

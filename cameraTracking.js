@@ -1,6 +1,5 @@
-import { getShipPos } from '../ship.js';
-import { getShipDir } from '../ship.js';
-import { GetShip } from '../ship.js';
+import { getShipDir, GetShip, getShipPos } from '../ship.js';
+import { getScene } from "../sceneController.js"
 
 //Initialised variable
 var isInitialized = false;
@@ -22,22 +21,16 @@ var material;
 //Groups the cube and the camera so rotation and position is locked
 var group;
 
-//Other variables
-var scene;
-
-
-export function cameraTracking(renderer, threeJSscene) {   //constructor
-  //save scene
-  scene = threeJSscene;
+export function cameraTracking(renderer) {   //constructor
 
   //Initialise Camera.
   camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 10000 );
-  camera.position.z = 10;
+  camera.position.z = 20;
 
   //Initialise Controls for OrbitControls and initial camera offset position.
   shipPos = getShipPos();
   shipDir = getShipDir();
-  offset = new THREE.Vector3(shipPos.x, shipPos.y + 4, shipPos.z - 8);
+  offset = new THREE.Vector3(shipPos.x, shipPos.y + 7, shipPos.z - 15);
   camera.position.set(offset.x, offset.y, offset.z);
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -60,7 +53,7 @@ export function cameraTracking(renderer, threeJSscene) {   //constructor
   group = new THREE.Group();
   group.add( cubeA );
   group.add( cubeB );
-  scene.add( group );
+  getScene().add( group );
 
   //Set Initialise flag to true to finish up.
   isInitialized = true;
@@ -82,7 +75,7 @@ function animate() {   //Loop
       updateOffset();
 
       //Extract world position from cubeB and cubeA
-      scene.updateMatrixWorld();
+      getScene().updateMatrixWorld();
       group.updateMatrixWorld();
       var posVec = new THREE.Vector3();
       posVec.setFromMatrixPosition(cubeB.matrixWorld );

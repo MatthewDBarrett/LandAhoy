@@ -1,8 +1,9 @@
+import { getScene } from "../sceneController.js"
+
 export class ParticleGen {
-    constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes, isDeviate) {
+    constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, autoGen, meshes, isDeviate, isRotate) {
         this.pos = pos;
         this.dir = dir;
-        this.scene = scene;
         this.particles = [];
         this.maxParticles = maxParticles;
         this.maxLifetime = maxLifetime;
@@ -13,6 +14,7 @@ export class ParticleGen {
         this.meshes = [];
         this.meshes = meshes;
         this.isDeviate = isDeviate;
+        this.isRotate = isRotate;
     }
 
     autoLoop(){
@@ -35,8 +37,10 @@ export class ParticleGen {
     generateParticle(){
         var deviateDir = new THREE.Vector3();
         if(this.isDeviate){
+            var max = 0.75;
+            var min = -0.75;
             deviateDir = this.dir.clone();
-            deviateDir.set(deviateDir.x + ((Math.random() - 0.5)/2), deviateDir.y + ((Math.random() - 0.5)/2), deviateDir.z);
+            deviateDir.set(deviateDir.x + (Math.random() * (max - min)) + min, deviateDir.y + (Math.random() * (max - min)) + min, deviateDir.z);
         }
 
         //Generate particle
@@ -47,14 +51,14 @@ export class ParticleGen {
             (this.isDeviate ? deviateDir : this.dir),
             this.meshes[Math.floor(Math.random() * meshLength)],
             Math.random() * this.maxLifetime,
-            Math.random() * this.maxSpeed);
-            //;
+            Math.random() * this.maxSpeed,
+            this.isRotate);
         this.particles.push(particle);
         this.addToScene(particle);
     }
 
     addToScene(particle){
-        this.scene.add(particle.getParticleMesh());
+        getScene().add(particle.getParticleMesh());
     }
 
     lifetimeDec(particle, delta){
@@ -84,7 +88,7 @@ export class ParticleGen {
     deleteParticleFromScene(particle){
         particle.particleMesh.geometry.dispose();
         particle.particleMesh.material.dispose();
-        this.scene.remove(particle.getParticleMesh());
+        getScene().remove(particle.getParticleMesh());
         particle.particleMesh = null;
     }
 
@@ -113,8 +117,10 @@ export class ParticleGen {
 }
 
 //Export for testing purposes!
+//THIS CLASS HAS ASSUMES THAT THE MESH BEING PASSED INTO IT IS A SHADERMATERIAL!
+//THIS NEEDS A SHADERMATERIAL TO WORK
 export class Particle{
-    constructor(pos, rot, dir, mesh, lifetime, initSpeed){
+    constructor(pos, rot, dir, mesh, lifetime, initSpeed, isRotate){
         //Fields
         this.pos = pos;
         this.rot = rot;
@@ -123,8 +129,10 @@ export class Particle{
         this.initialLifetime = lifetime;
         this.initSpeed = initSpeed;
         this.speed = initSpeed;
+        this.isRotate = isRotate;
         // this.geometry = new THREE.Geometry();
         // this.material = new THREE.MeshNormalMaterial( );// {color: 0x00ff00}
+        this.hasShaderAttached = mesh[2];
         this.particleMesh = new THREE.Mesh(mesh[0].clone(), mesh[1].clone());
         this.direction = dir;
         this.cubeGeometry = new THREE.BoxGeometry(0.1,0.1,0.1);
@@ -133,7 +141,13 @@ export class Particle{
         this.cube = new THREE.Mesh( this.cubeGeometry, this.cubeMat );
 
         //Random starting rotation
-        this.rot = new THREE.Vector3(Math.random() * 10, Math.random(), Math.random() * 50);
+        if(isRotate){
+            this.rot = new THREE.Vector3(Math.random() * 10, Math.random(), Math.random() * 50);
+        }   
+        else{
+            //No rotation if no rotation on particles
+            this.rot = dir;
+        }
 
         //Set cube to same position as particle, but correct orientation.
         this.cube.position.set(this.pos.x, this.pos.y, this.pos.z);
@@ -159,7 +173,7 @@ export class Particle{
     }
 
     setOpacity(){
-        this.particleMesh.material.opacity = (this.lifetime)/this.initialLifetime;        
+        this.particleMesh.material.opacity = (this.lifetime)/this.initialLifetime;
     }
 
     setCurrentSpeed(){
@@ -167,15 +181,51 @@ export class Particle{
     }
 
     //update position
+    //update Shader state
     updateParticle(delta){
-        this.rot.x += 0.1;
-        this.rot.y += 0.1;
-        this.rot.z += 0.1;
+        if(this.isRotate){      
+            this.rot.x += 0.1;
+            this.rot.y += 0.1;
+            this.rot.z += 0.1;
+        }
+
         if(this.speed > 0){            
             this.cube.getWorldDirection(this.direction);
             this.cube.position.add( this.direction.multiplyScalar(this.speed));
-            this.particleMesh.rotation.set(this.rot.x, this.rot.y, this.rot.z);
+            this.particleMesh.rotation.set(this.rot.x, this.rot.y, this.rot.z, "YXZ");
             this.particleMesh.position.set(this.cube.position.x, this.cube.position.y, this.cube.position.z);
+        }
+
+        //I hate this as much as anyone else does, but I have to do this I'm sorry no time to contemplate
+        //Blue 62.0,101.0,192.0
+        //Yellow 220.0,226.0,34.0
+        //Orange 226.0,88.0,34.0
+        //Red 226.0,40.0,34.0
+        if(this.hasShaderAttached){
+            if(this.particleMesh.material.opacity > 0.75 ){
+                this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(62.0,101.0,192.0);
+                this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(220.0,226.0,34.0);
+                this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.75)/0.25;
+                this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+            }
+            else if(this.particleMesh.material.opacity > 0.5){
+                this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(62.0,101.0,192.0);
+                this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(220.0,226.0,34.0);
+                this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.5)/0.25;
+                this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+            }
+            else if(this.particleMesh.material.opacity > 0.25){
+                this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(220.0,226.0,34.0);
+                this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(226.0,88.0,34.0);
+                this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.25)/0.25;
+                this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+            }
+            else{
+                this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(226.0,40.0,34.0);
+                this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(226.0,40.0,34.0);
+                this.particleMesh.material.uniforms.colorlerp.value = 1.0;
+                this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+            }
         }
     }
 }

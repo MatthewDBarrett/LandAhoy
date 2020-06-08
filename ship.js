@@ -36,53 +36,60 @@ var boosterParticleRight;
 var boosterParticleUpper;
 var isInitialised;
 
+var fireVertShader = loadFile('./shaders/fireParticleVertShader');
+var fireFragShader = loadFile('./shaders/fireParticleFragShader');
+var uniforms = {
+  opacity : {value : 0.2},
+  color1 : {value : new THREE.Vector3()},
+  color2 : {value : new THREE.Vector3()},
+  colorlerp : {value : 0.0}
+};
+
 //SOME PARTICLE MESHES, You need to supply a geometry and a material.
-var particleMeshes = [];
-var geometry = new THREE.Geometry();
-var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );// {color: 0x00ff00}
+  var particleMeshes = [];
+  var geometry = new THREE.Geometry();
+  var material = new THREE.ShaderMaterial();// {color: 0x00ff00}
+  material.vertexShader = fireVertShader;
+  material.fragmentShader = fireFragShader;
+  material.uniforms = uniforms;
+  material.side = THREE.DoubleSide;
+  material.transparent = true;
+  material.wireframe = false;
 
-//TRIANGLE PARTICLE
-var v1 = new THREE.Vector3(0,0,0);
-var v2 = new THREE.Vector3(1,0,0);
-var v3 = new THREE.Vector3(1,1,0);
-geometry.vertices.push(v1);
-geometry.vertices.push(v2);
-geometry.vertices.push(v3);
-geometry.faces.push( new THREE.Face3(0, 1, 2) );
-geometry.computeFaceNormals();
-geometry.translate( -0.5, -0.5, 0 );
-geometry.scale(0.4, 0.4, 0.4);
-material.side = THREE.DoubleSide;
-material.transparent = true;
-material.wireframe = false;
-particleMeshes.push([geometry, material]);
+  //TRIANGLE PARTICLE
+  var v1 = new THREE.Vector3(0,0,0);
+  var v2 = new THREE.Vector3(1,0,0);
+  var v3 = new THREE.Vector3(1,1,0);
+  geometry.vertices.push(v1);
+  geometry.vertices.push(v2);
+  geometry.vertices.push(v3);
+  geometry.faces.push( new THREE.Face3(0, 1, 2) );
+  geometry.computeFaceNormals();
+  geometry.translate( -0.5, -0.5, 0 );
+  geometry.scale(0.4, 0.4, 0.4);
+  particleMeshes.push([geometry, material, true]);
 
-//CUBE PARTICLE
-material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-material.side = THREE.DoubleSide;
-material.transparent = true;
-material.wireframe = false;
-geometry = new THREE.BoxGeometry( 1, 1, 1 );
-geometry.scale(0.4, 0.4, 0.4);
-particleMeshes.push([geometry, material]);
+  //CUBE PARTICLE
+  geometry = new THREE.BoxGeometry( 1, 1, 1 );
+  geometry.scale(0.4, 0.4, 0.4);
+  particleMeshes.push([geometry, material, true]);
 
-//CYLINDER PARTICLE
-material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-material.side = THREE.DoubleSide;
-material.transparent = true;
-material.wireframe = false;
-geometry = new THREE.CylinderBufferGeometry(0.25, 0.25, 1, 10);
-geometry.scale(0.4, 0.4, 0.4);
-particleMeshes.push([geometry, material]);
+  //CYLINDER PARTICLE
+  geometry = new THREE.CylinderBufferGeometry(0.25, 0.25, 1, 10);
+  geometry.scale(0.4, 0.4, 0.4);
+  particleMeshes.push([geometry, material, true]);
 
-//ICOSAHEDRON PARTICLE
-material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-material.side = THREE.DoubleSide;
-material.transparent = true;
-material.wireframe = false;
-geometry = new THREE.IcosahedronBufferGeometry(1, 0);
-geometry.scale(0.3, 0.3, 0.3);
-particleMeshes.push([geometry, material]);
+  //ICOSAHEDRON PARTICLE
+  geometry = new THREE.IcosahedronBufferGeometry(1, 0);
+  geometry.scale(0.3, 0.3, 0.3);
+  particleMeshes.push([geometry, material, true]);
+
+  //NORMAL MESH 
+  geometry = new THREE.TorusKnotBufferGeometry(10, 3, 4, 16 );
+  // material = new THREE.MeshNormalMaterial();
+  // material.transparent = true;
+  geometry.scale(0.01, 0.01, 0.01);
+  particleMeshes.push([geometry, material, true]);
 //END OF PARTICLE MESHES
 
 //POSITIONING FOR PARITCLE GENERATORS
@@ -132,9 +139,11 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   pivotLeft.position.set(ship.position.x + 0.75, ship.position.y + 0.2, ship.position.z - 2);
   pivotRight.position.set(ship.position.x - 0.75, ship.position.y + 0.2, ship.position.z - 2);
   pivotUpper.position.set(ship.position.x , ship.position.y + 0.75, ship.position.z - 2);
-  boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, getScene(), true, particleMeshes, true );
-  boosterParticleRight = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, getScene(), true, particleMeshes, true );
-  boosterParticleUpper = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 0.5, 0.1, getScene(), true, particleMeshes, true );
+
+  //constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, autoGen, meshes, isDeviate, isRotate)
+  boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 1, 0.1, true, particleMeshes, true, true );
+  boosterParticleRight = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 1, 0.1, true, particleMeshes, true, true );
+  boosterParticleUpper = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 1, 0.1, true, particleMeshes, true, true );
   isInitialised = true;
 }
 
@@ -170,9 +179,9 @@ function animate(){
       boosterParticleUpper.setMaxParticles(10);
     }
     else{
-      boosterParticleLeft.setMaxParticles(speed * 10);
-      boosterParticleRight.setMaxParticles(speed * 10);
-      boosterParticleUpper.setMaxParticles(speed * 10);
+      boosterParticleLeft.setMaxParticles(speed * speed);
+      boosterParticleRight.setMaxParticles(speed * speed);
+      boosterParticleUpper.setMaxParticles(speed * speed);
     }
     //Setting Position
     var posVec1 = new THREE.Vector3();
@@ -334,6 +343,17 @@ var onKeyUp = function ( event ) {
       break;
   }
 };
+
+function loadFile(filePath) {
+  var result = null;
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("GET", filePath, false);
+  xmlhttp.send();
+  if (xmlhttp.status==200) {
+    result = xmlhttp.responseText;
+  }
+  return result;
+}
 
 document.addEventListener( 'keydown', onKeyDown, false );
 document.addEventListener( 'keyup', onKeyUp, false );
