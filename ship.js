@@ -67,22 +67,29 @@ var uniforms = {
   geometry.computeFaceNormals();
   geometry.translate( -0.5, -0.5, 0 );
   geometry.scale(0.4, 0.4, 0.4);
-  particleMeshes.push([geometry, material]);
+  particleMeshes.push([geometry, material, true]);
 
   //CUBE PARTICLE
   geometry = new THREE.BoxGeometry( 1, 1, 1 );
   geometry.scale(0.4, 0.4, 0.4);
-  particleMeshes.push([geometry, material]);
+  particleMeshes.push([geometry, material, true]);
 
   //CYLINDER PARTICLE
   geometry = new THREE.CylinderBufferGeometry(0.25, 0.25, 1, 10);
   geometry.scale(0.4, 0.4, 0.4);
-  particleMeshes.push([geometry, material]);
+  particleMeshes.push([geometry, material, true]);
 
   //ICOSAHEDRON PARTICLE
   geometry = new THREE.IcosahedronBufferGeometry(1, 0);
   geometry.scale(0.3, 0.3, 0.3);
-  particleMeshes.push([geometry, material]);
+  particleMeshes.push([geometry, material, true]);
+
+  //NORMAL MESH 
+  geometry = new THREE.TorusKnotBufferGeometry(10, 3, 4, 16 );
+  // material = new THREE.MeshNormalMaterial();
+  // material.transparent = true;
+  geometry.scale(0.01, 0.01, 0.01);
+  particleMeshes.push([geometry, material, true]);
 //END OF PARTICLE MESHES
 
 //POSITIONING FOR PARITCLE GENERATORS

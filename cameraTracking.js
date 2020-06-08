@@ -25,12 +25,12 @@ export function cameraTracking(renderer) {   //constructor
 
   //Initialise Camera.
   camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 10000 );
-  camera.position.z = 10;
+  camera.position.z = 20;
 
   //Initialise Controls for OrbitControls and initial camera offset position.
   shipPos = getShipPos();
   shipDir = getShipDir();
-  offset = new THREE.Vector3(shipPos.x, shipPos.y + 4, shipPos.z - 8);
+  offset = new THREE.Vector3(shipPos.x, shipPos.y + 7, shipPos.z - 15);
   camera.position.set(offset.x, offset.y, offset.z);
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;

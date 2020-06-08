@@ -132,6 +132,7 @@ export class Particle{
         this.isRotate = isRotate;
         // this.geometry = new THREE.Geometry();
         // this.material = new THREE.MeshNormalMaterial( );// {color: 0x00ff00}
+        this.hasShaderAttached = mesh[2];
         this.particleMesh = new THREE.Mesh(mesh[0].clone(), mesh[1].clone());
         this.direction = dir;
         this.cubeGeometry = new THREE.BoxGeometry(0.1,0.1,0.1);
@@ -200,29 +201,31 @@ export class Particle{
         //Yellow 220.0,226.0,34.0
         //Orange 226.0,88.0,34.0
         //Red 226.0,40.0,34.0
-        if(this.particleMesh.material.opacity > 0.75 ){
-            this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(62.0,101.0,192.0);
-            this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(220.0,226.0,34.0);
-            this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.75)/0.25;
-            this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
-        }
-        else if(this.particleMesh.material.opacity > 0.5){
-            this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(62.0,101.0,192.0);
-            this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(220.0,226.0,34.0);
-            this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.5)/0.25;
-            this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
-        }
-        else if(this.particleMesh.material.opacity > 0.25){
-            this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(220.0,226.0,34.0);
-            this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(226.0,88.0,34.0);
-            this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.25)/0.25;
-            this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
-        }
-        else{
-            this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(226.0,40.0,34.0);
-            this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(226.0,40.0,34.0);
-            this.particleMesh.material.uniforms.colorlerp.value = 1.0;
-            this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+        if(this.hasShaderAttached){
+            if(this.particleMesh.material.opacity > 0.75 ){
+                this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(62.0,101.0,192.0);
+                this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(220.0,226.0,34.0);
+                this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.75)/0.25;
+                this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+            }
+            else if(this.particleMesh.material.opacity > 0.5){
+                this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(62.0,101.0,192.0);
+                this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(220.0,226.0,34.0);
+                this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.5)/0.25;
+                this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+            }
+            else if(this.particleMesh.material.opacity > 0.25){
+                this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(220.0,226.0,34.0);
+                this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(226.0,88.0,34.0);
+                this.particleMesh.material.uniforms.colorlerp.value = (this.particleMesh.material.opacity - 0.25)/0.25;
+                this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+            }
+            else{
+                this.particleMesh.material.uniforms.color1.value = new THREE.Vector3(226.0,40.0,34.0);
+                this.particleMesh.material.uniforms.color2.value = new THREE.Vector3(226.0,40.0,34.0);
+                this.particleMesh.material.uniforms.colorlerp.value = 1.0;
+                this.particleMesh.material.uniforms.opacity.value = this.particleMesh.material.opacity;
+            }
         }
     }
 }
