@@ -6,6 +6,10 @@ var chunks = [];
 var chunkMap = [];
 
 var vertices = [];
+var verticesMap = [];
+
+var curZIndex = 0;
+var curXIndex = 0;
 
 var spheres = [];
 
@@ -16,13 +20,13 @@ var lastVertDis = 0;
 var lastXSize = 0;
 var lastZSize = 0;
 
-var startMapSize = 1;
+var startMapSize = 2;
 
 var options = {
-  vertDistance: 200,
+  vertDistance: 1,
   xSize: 20,
   zSize: 20,
-  amplitude: 150,
+  amplitude: 1,
   hide: ['None','Chunk 1','Chunk 2','Chunk 3'],
   show: ['None','Chunk 1','Chunk 2','Chunk 3']
 }
@@ -34,7 +38,6 @@ export function terrainGenerator(){
 function init(){
   UserInterface();
   CreateWorld();
-  //DrawSpheres();
 }
 
 function UserInterface(){
@@ -50,32 +53,27 @@ function UserInterface(){
 }
 
 function CreateWorld(){
-  // CreateShape();
-  // CreateShape('up');
-  // CreateShape('left');
 
-  //startMapSize *=3;
+  for (var z = 0; z < startMapSize; z++){                                 //creating chunks, each interation is another chunk generated
+    for (var x = 0; x < startMapSize; x++){
+      var zPos = ( options.vertDistance * ( options.zSize ) ) * z;
+      var xPos = ( options.vertDistance * ( options.xSize ) ) * x;
+      curZIndex = z;
+      curXIndex = x;
 
-  for (var i = 0; i < startMapSize; i++){
-    for (var j = 0; j < startMapSize; j++){
-      var xPos = ( options.vertDistance * options.xSize ) * j;
-      var zPos = ( options.vertDistance * options.zSize ) * i;
-      // chunkMap[i] = [];
-      // chunkMap[i][j] = 'X';
-
-      chunkMap.push([i,j]);
-      chunkMap[i][j] = 'x';
-
+      //console.log('-- z: ' + z + ' x: ' + x);
       CreateShape(xPos, zPos);
+      chunkMap.push([z,x]);
+      chunkMap[z][x] = chunk;
+      // verticesMap.push([z,x]);
+      // verticesMap[z][x] = vertices;
     }
   }
-
-  PrintChunkMap();
-
 }
 
 function PrintChunkMap(){
   var text = "";
+  console.log("CHUNK MAP:");
   for ( var a = 0; a < startMapSize; a++){
     for ( var b = 0; b < startMapSize; b++){
       text += chunkMap[a][b];
@@ -115,23 +113,81 @@ function CreateShape(xPos, zPos){
   //     }
   //   }
   // } else {
-    var i = 0;
-    for (var z = 0; z <= options.zSize; z++){
-      for (var x = 0; x <= options.xSize; x++){
-        var yNoise = Math.random() * options.amplitude;
+  var i = 0;
+  //vertices = [];
+  var connectAbove = CheckConnection('above');
+  //console.log("Above: " + ( connectAbove ? "true" : "false") );
+  var connectBelow = CheckConnection('below');
+  //console.log("Below: " + ( connectBelow ? "true" : "false") );
+  var connectRight = CheckConnection('right');
+  //console.log("Right: " + ( connectRight ? "true" : "false") );
+  var connectLeft = CheckConnection('left');
+  //console.log("Left: " + ( connectLeft ? " true" : " false") );
 
+  for (var z = 0; z <= options.zSize; z++){
+    for (var x = 0; x <= options.xSize; x++){
+      var yNoise = Math.random() * options.amplitude;
 
+      if ( connectAbove && z == options.zSize -1){}
+        //yNoise = chunkMap[zIndex+1][xIndex][0].y;
 
-        vertices[i] = new THREE.Vector3(xPos + x* options.vertDistance, yNoise, zPos + z* options.vertDistance);
-        i++;
+      if ( connectBelow && z == 0){
+        var vertMap = verticesMap[curZIndex - 1][curXIndex];
+        yNoise = vertMap[vertMap.length - 20 + (i-1)].y;
       }
+
+      if ( connectRight && x == 0){}
+        //yNoise = chunkMap[zIndex][xIndex+1][0].y;
+
+      if ( connectLeft && x == options.xSize-1) {
+        //yNoise = chunkMap[zIndex][xIndex-1][0].y;
+      }
+
+      vertices.push( new THREE.Vector3(xPos + x * options.vertDistance, yNoise, zPos + z * options.vertDistance) );
+
+      i++;
     }
+  }
   //}
 
   RenderChunk();
-  chunks.push(chunk);
-  chunk = [];
+  //console.log("chunk: " + chunkMap[0][0][0][0]);
+  //chunk = [];
   //numChunks++;
+}
+
+function CheckConnection(side){
+
+  //console.log( "chunkMap length: " + chunkMap.length );
+  if ( chunkMap.length > 0){
+    switch( side ){
+      case 'above':
+        if ( curZIndex >= chunkMap.length )
+          if ( chunkMap[curZIndex + 1][curXIndex] != 0 && chunkMap[curZIndex + 1][curXIndex] != null )
+            return true;
+        break;
+
+      case 'below':
+        if ( curZIndex != 0 )
+          if ( chunkMap[curZIndex - 1][curXIndex] != 0 && chunkMap[curZIndex - 1][curXIndex] != null )
+            return true;
+        break;
+
+      case 'right':
+        if ( chunkMap[curZIndex][curXIndex - 1] != 0 && chunkMap[curZIndex][curXIndex - 1] != null )
+          return true;
+        break;
+
+      case 'left':
+        if ( curXIndex >= chunkMap[curZIndex].length )
+          if ( chunkMap[curZIndex][curXIndex + 1] != 0 && chunkMap[curZIndex][curXIndex + 1] != null )
+            return true;
+        break;
+
+      default:
+        return false;
+    }
+  }
 }
 
 function RenderChunk(){
@@ -147,6 +203,9 @@ function RenderChunk(){
       DrawTriangle(triangle[0],triangle[1],triangle[2]);
     }
   }
+  verticesMap.push([curZIndex,curXIndex]);
+  verticesMap[curZIndex][curXIndex] = vertices;
+  vertices = [];
 }
 
 function DrawTriangle(v1, v2, v3){
