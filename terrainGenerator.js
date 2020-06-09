@@ -20,7 +20,7 @@ var lastVertDis = 0;
 var lastXSize = 0;
 var lastZSize = 0;
 
-var startMapSize = 2;
+var startMapSize = 4;
 
 var options = {
   vertDistance: 1,
@@ -128,19 +128,22 @@ function CreateShape(xPos, zPos){
     for (var x = 0; x <= options.xSize; x++){
       var yNoise = Math.random() * options.amplitude;
 
-      if ( connectAbove && z == options.zSize -1){}
-        //yNoise = chunkMap[zIndex+1][xIndex][0].y;
+      if ( connectAbove && z == options.zSize -1){
+
+      }
 
       if ( connectBelow && z == 0){
         var vertMap = verticesMap[curZIndex - 1][curXIndex];
         yNoise = vertMap[vertMap.length - 20 + (i-1)].y;
       }
 
-      if ( connectRight && x == 0){}
-        //yNoise = chunkMap[zIndex][xIndex+1][0].y;
+      if ( connectRight && x == 0){
+        var vertMap = verticesMap[curZIndex][curXIndex - 1];
+        yNoise = vertMap[(i) + 20].y;
+      }
 
       if ( connectLeft && x == options.xSize-1) {
-        //yNoise = chunkMap[zIndex][xIndex-1][0].y;
+
       }
 
       vertices.push( new THREE.Vector3(xPos + x * options.vertDistance, yNoise, zPos + z * options.vertDistance) );
