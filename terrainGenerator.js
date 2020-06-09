@@ -20,7 +20,7 @@ var lastVertDis = 0;
 var lastXSize = 0;
 var lastZSize = 0;
 
-var startMapSize = 4;
+var startMapSize = 2;
 
 var options = {
   vertDistance: 1,
@@ -134,12 +134,12 @@ function CreateShape(xPos, zPos){
 
       if ( connectBelow && z == 0){
         var vertMap = verticesMap[curZIndex - 1][curXIndex];
-        yNoise = vertMap[vertMap.length - 20 + (i-1)].y;
+        yNoise = vertMap[vertMap.length - options.zSize + (i-1)].y;
       }
 
       if ( connectRight && x == 0){
         var vertMap = verticesMap[curZIndex][curXIndex - 1];
-        yNoise = vertMap[(i) + 20].y;
+        yNoise = vertMap[(i) + options.xSize].y;
       }
 
       if ( connectLeft && x == options.xSize-1) {
