@@ -1,13 +1,34 @@
-import { Ship, GetShip } from '../ship.js';
-import { cameraTracking } from '../cameraTracking.js'
-import { getCamera } from '../cameraTracking.js'
-import { terrainGenerator } from '../terrainGenerator.js'
+import { Ship, GetShip, getShipPos } from '../ship.js';
+import { cameraTracking } from '../cameraTracking.js';
+import { getCamera } from '../cameraTracking.js';
+import { terrainGenerator } from '../terrainGenerator.js';
 import { ParticleGen } from '../particleGeneration.js';
+import { Lighting } from '../lighting.js';
 
 var scene = new THREE.Scene();
 export function getScene(){
 	return scene;
 }
+
+function replaceThreeChunkFn(a, b) {
+    return THREE.ShaderChunk[b] + '\n';
+}
+
+export function shaderParse(glsl) {
+    return glsl.replace(/\/\/\s?chunk\(\s?(\w+)\s?\);/g, replaceThreeChunkFn);
+}
+
+export function loadFile(filePath) {
+	var result = null;
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.open("GET", filePath, false);
+	xmlhttp.send();
+	if (xmlhttp.status==200) {
+	  result = xmlhttp.responseText;
+	}
+	return result;
+  }
+  
 
 const clock = new THREE.Clock();
 
@@ -18,12 +39,10 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = true;
 document.body.appendChild( renderer.domElement );
 
 //var isMouseDown = false;
-
-
-
 var spaceShip = new Ship(Pos, Dir);
 var camera = new cameraTracking(renderer);
 //pos, dir, maxParticles, maxLifetime, maxSpeed, scene, autoGen, meshes
@@ -99,25 +118,24 @@ scene.add( skybox );
 // var spotlightHelper = new THREE.SpotLightHelper(spotLight);
 // scene.add(spotlightHelper);
 
-var directionLight = new THREE.DirectionalLight(
-	new THREE.Color(1,1,1), 						//color
-	1,																	//intensity
-	200, 																//distance
-	Math.PI/3, 													//angle
-	0.9																	//penumbra
-);
-directionLight.castShadow = true;
-scene.add(directionLight);
-
+var lighting = new Lighting();
 var terrain = new terrainGenerator();
+
+export function getLighting(){
+	return lighting;
+}
 
 var animate = function () {
 	requestAnimationFrame( animate );
   // if ( isMouseDown ) {
 	//    controls.update();
   //  }
+	var pos = getShipPos();
+	pos = new THREE.Vector3(pos.x, pos.y + 10, pos.z);
+	lighting.setPosition(pos);
+	lighting.getLight().target = GetShip();
 
-  UpdateShip();
+	UpdateShip();
 	renderer.render(scene, getCamera());
 };
 
@@ -156,7 +174,6 @@ export function removeFromScene(object){
 }
 
 animate();
-
 //this fucntion is called when the window is resized
 var MyResize = function ( )
 {

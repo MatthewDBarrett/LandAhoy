@@ -1,5 +1,5 @@
 import { ParticleGen } from '../particleGeneration.js';
-import { getScene } from '../sceneController.js'
+import { getScene, loadFile } from '../sceneController.js';
 
 const clock = new THREE.Clock();
 var delta = clock.getDelta();
@@ -36,8 +36,8 @@ var boosterParticleRight;
 var boosterParticleUpper;
 var isInitialised;
 
-var fireVertShader = loadFile('./shaders/fireParticleVertShader');
-var fireFragShader = loadFile('./shaders/fireParticleFragShader');
+var fireVertShader = loadFile('./shaders/fireParticleVertShader.glsl');
+var fireFragShader = loadFile('./shaders/fireParticleFragShader.glsl');
 var uniforms = {
   opacity : {value : 0.2},
   color1 : {value : new THREE.Vector3()},
@@ -134,7 +134,6 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   });
 
   ship.rotation.reorder = "YXZ";
-
   //Setting up particle generators.
   pivotLeft.position.set(ship.position.x + 0.75, ship.position.y + 0.2, ship.position.z - 2);
   pivotRight.position.set(ship.position.x - 0.75, ship.position.y + 0.2, ship.position.z - 2);
@@ -169,6 +168,9 @@ function animate(){
   }
 
   if(isInitialised){
+    ship.traverse(function(child){
+      child.castShadow = true;
+    });
     ship.add(pivotLeft);
     ship.add(pivotRight);
     ship.add(pivotUpper);
@@ -343,17 +345,6 @@ var onKeyUp = function ( event ) {
       break;
   }
 };
-
-function loadFile(filePath) {
-  var result = null;
-  var xmlhttp = new XMLHttpRequest();
-  xmlhttp.open("GET", filePath, false);
-  xmlhttp.send();
-  if (xmlhttp.status==200) {
-    result = xmlhttp.responseText;
-  }
-  return result;
-}
 
 document.addEventListener( 'keydown', onKeyDown, false );
 document.addEventListener( 'keyup', onKeyUp, false );
