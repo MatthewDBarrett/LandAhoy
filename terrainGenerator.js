@@ -1,5 +1,6 @@
 import { addToScene } from '../sceneController.js'
 import { removeFromScene } from '../sceneController.js'
+import { getShipDir, GetShip, getShipPos } from '../ship.js';
 
 var chunk = [];
 var chunks = [];
@@ -7,6 +8,10 @@ var chunkMap = [];
 
 var vertices = [];
 var verticesMap = [];
+
+var toggledChunks = [];
+
+var curIndexPos = new THREE.Vector2();
 
 var curZIndex = 0;
 var curXIndex = 0;
@@ -20,13 +25,13 @@ var lastVertDis = 0;
 var lastXSize = 0;
 var lastZSize = 0;
 
-var startMapSize = 2;
+var startMapSize = 10;
 
 var options = {
-  vertDistance: 1,
-  xSize: 20,
-  zSize: 20,
-  amplitude: 1,
+  vertDistance: 150,
+  xSize: 10,
+  zSize: 10,
+  amplitude: 125,
   hide: ['None','Chunk 1','Chunk 2','Chunk 3'],
   show: ['None','Chunk 1','Chunk 2','Chunk 3']
 }
@@ -65,8 +70,7 @@ function CreateWorld(){
       CreateShape(xPos, zPos);
       chunkMap.push([z,x]);
       chunkMap[z][x] = chunk;
-      // verticesMap.push([z,x]);
-      // verticesMap[z][x] = vertices;
+      chunk = [];
     }
   }
 }
@@ -86,35 +90,7 @@ function PrintChunkMap(){
 
 function CreateShape(xPos, zPos){
 
-  // if (direction == 'up'){
-  //   var i = 0;
-  //   for (var z = 0; z <= options.zSize; z++){
-  //     for (var x = 0; x <= options.xSize; x++){
-  //       var yNoise = Math.random() * options.amplitude;
-  //       if ( z == 0 ){
-  //         vertices[i] = vertices[(options.zSize * options.zSize + options.zSize) + i];
-  //       } else {
-  //         vertices[i] = new THREE.Vector3(x * options.vertDistance, yNoise, (z * options.vertDistance) + (options.zSize * options.vertDistance));
-  //       }
-  //       i++;
-  //     }
-  //   }
-  // } else if (direction == 'left') {
-  //   var i = 0;
-  //   for (var z = 0; z <= options.zSize; z++){
-  //     for (var x = 0; x <= options.xSize; x++){
-  //       var yNoise = Math.random() * options.amplitude;
-  //       if ( x == 0 ){
-  //         vertices[i] = vertices[i+20];
-  //       } else {
-  //         vertices[i] = new THREE.Vector3((x * options.vertDistance) + (options.xSize * options.vertDistance), yNoise, (z * options.vertDistance) + (options.zSize * options.vertDistance));
-  //       }
-  //       i++;
-  //     }
-  //   }
-  // } else {
   var i = 0;
-  //vertices = [];
   var connectAbove = CheckConnection('above');
   //console.log("Above: " + ( connectAbove ? "true" : "false") );
   var connectBelow = CheckConnection('below');
@@ -151,17 +127,12 @@ function CreateShape(xPos, zPos){
       i++;
     }
   }
-  //}
 
   RenderChunk();
-  //console.log("chunk: " + chunkMap[0][0][0][0]);
-  //chunk = [];
-  //numChunks++;
 }
 
 function CheckConnection(side){
 
-  //console.log( "chunkMap length: " + chunkMap.length );
   if ( chunkMap.length > 0){
     switch( side ){
       case 'above':
@@ -267,6 +238,13 @@ function UpdateSpheres(){
 var animate = function() {
   requestAnimationFrame( animate );
 
+  var tempZ = Math.floor( ( getShipPos().z / options.zSize ) / options.vertDistance );
+  var tempX = Math.floor( ( getShipPos().x / options.xSize ) / options.vertDistance );
+  curIndexPos = new THREE.Vector2(tempZ, tempX);
+  //console.log("Z: " + curIndexPos.x + " X: " + curIndexPos.y);
+
+  toggleChunks();
+
   if(lastVertDis != 0 && options.vertDistance != lastVertDis){
     UpdateSpheres();
   }
@@ -285,42 +263,79 @@ var animate = function() {
 
   if (options.hide != null && options.hide!= 'None'){
     if (options.hide == 'Chunk 1'){
-      HideChunk(1);
+      HideChunk(0,0);
       options.hide = 'None';
     } else if (options.hide == 'Chunk 2'){
-      HideChunk(2);
+      HideChunk(0,1);
       options.hide = 'None';
     } else if (options.hide == 'Chunk 3'){
-      HideChunk(3);
+      HideChunk(1,0);
       options.hide = 'None';
     }
   }
 
   if (options.show != null && options.show!= 'None'){
     if (options.show == 'Chunk 1'){
-      ShowChunk(1);
+      ShowChunk(0,0);
       options.show = 'None';
     } else if (options.show == 'Chunk 2'){
-      ShowChunk(2);
+      ShowChunk(0,1);
       options.show = 'None';
     } else if (options.show == 'Chunk 3'){
-      ShowChunk(3);
+      ShowChunk(1,0);
       options.show = 'None';
     }
   }
 
 }
 
-function HideChunk(chunk){
-  chunk--;
-  var triArray = chunks[chunk];
+function toggleChunks(){
+  if ( chunkMap.length > 0 ) {
+    var currentChunk = chunkMap[curIndexPos.x][curIndexPos.y];
+
+    for ( var z = 0; z < chunkMap.length; z++ ) {                //Unshow all chunks
+      for ( var x = 0; x < chunkMap[z].length; x++ ) {
+        HideChunk(z,x);
+      }
+    }
+
+    if ( !currentChunk[0].visible )                             //check that currentChunk is visible
+      ShowChunk(curIndexPos.x, curIndexPos.y);
+
+    if( !chunkMap[curIndexPos.x + 1][curIndexPos.y][0].visible )    //Above
+      ShowChunk(curIndexPos.x + 1, curIndexPos.y);
+
+    if( !chunkMap[curIndexPos.x - 1][curIndexPos.y][0].visible )    //Below
+      ShowChunk(curIndexPos.x - 1, curIndexPos.y);
+
+    if( !chunkMap[curIndexPos.x][curIndexPos.y - 1][0].visible )    //Right
+      ShowChunk(curIndexPos.x, curIndexPos.y - 1);
+
+    if( !chunkMap[curIndexPos.x][curIndexPos.y + 1][0].visible )    //Left
+      ShowChunk(curIndexPos.x, curIndexPos.y + 1);
+
+    if( !chunkMap[curIndexPos.x + 1][curIndexPos.y + 1][0].visible )    //Top Left Corner
+      ShowChunk(curIndexPos.x + 1, curIndexPos.y + 1);
+
+    if( !chunkMap[curIndexPos.x + 1][curIndexPos.y - 1][0].visible )    //Top Right Corner
+      ShowChunk(curIndexPos.x + 1, curIndexPos.y - 1);
+
+    if( !chunkMap[curIndexPos.x - 1][curIndexPos.y + 1][0].visible )    //Bottom Left Corner
+      ShowChunk(curIndexPos.x - 1, curIndexPos.y + 1);
+
+    if( !chunkMap[curIndexPos.x - 1][curIndexPos.y - 1][0].visible )    //Bottom Right Corner
+      ShowChunk(curIndexPos.x - 1, curIndexPos.y - 1);
+  }
+}
+
+function HideChunk(z, x){
+  var triArray = chunkMap[z][x];
   for (var i = 0; i < triArray.length; i++)
     triArray[i].visible = false;
 }
 
-function ShowChunk(chunk){
-  chunk--;
-  var triArray = chunks[chunk];
+function ShowChunk(z, x){
+  var triArray = chunkMap[z][x];
   for (var i = 0; i < triArray.length; i++)
     triArray[i].visible = true;
 }
