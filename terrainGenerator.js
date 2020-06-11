@@ -1,4 +1,4 @@
-import { addToScene } from '../sceneController.js'
+import { addToScene, loadFile, getLighting, shaderParse } from '../sceneController.js'
 import { removeFromScene } from '../sceneController.js'
 
 var chunk = [];
@@ -21,6 +21,25 @@ var lastXSize = 0;
 var lastZSize = 0;
 
 var startMapSize = 2;
+
+var groundVertShader = loadFile('./shaders/groundNormVertShader.glsl');
+var groundFragShader = loadFile('./shaders/groundNormFragShader.glsl');
+groundVertShader = shaderParse(groundVertShader);
+groundFragShader = shaderParse(groundFragShader);
+
+var material = new THREE.ShaderMaterial({
+  vertexShader: groundVertShader, 
+  fragmentShader: groundFragShader,
+  uniforms: THREE.UniformsUtils.merge([
+    THREE.UniformsLib.shadowmap,
+    {
+        lightPos: {type: 'v3', value: new THREE.Vector3(1, 1, 1)},
+        time: {type: 'f', value: 0},
+        lightColor: {value: new THREE.Vector3()},
+        landscapeColor: {value: new THREE.Vector3()}
+    }
+  ])
+});
 
 var options = {
   vertDistance: 1,
@@ -221,8 +240,15 @@ function DrawTriangle(v1, v2, v3){
   geom.faces.push( new THREE.Face3( 0, 1, 2) );
   geom.computeFaceNormals();
 
-  var mesh = new THREE.Mesh( geom, new THREE.MeshNormalMaterial() );
+  material.uniforms.lightColor.value = getLighting().getColor();
+  material.uniforms.lightPos.value = getLighting().getPosition();
+  material.uniforms.landscapeColor.value = new THREE.Vector3( 1, 1, 1);
+  // material.lights = true;
 
+  var mesh = new THREE.Mesh( geom, new THREE.MeshPhongMaterial(0x00ff00) );
+  mesh.receiveShadow = true;
+  mesh.castShadow = false;
+  
   chunk.push(mesh);
   addToScene(mesh);
 }
