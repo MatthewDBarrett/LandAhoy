@@ -149,7 +149,6 @@ function UpdateShip(){
 	var direction = new THREE.Vector3();
 
 	ship.getWorldDirection( direction );
-	sunlight.update();
 	//camera.position.set(ship.position.x, ship.position.y + 4, ship.position.z - 8);
 
 
