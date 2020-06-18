@@ -28,7 +28,7 @@ var lastVertDis = 0;
 var lastXSize = 0;
 var lastZSize = 0;
 
-var startMapSize = 3;
+var startMapSize = 2;
 
 var groundVertShader = loadFile('./shaders/groundNormVertShader.glsl');
 var groundFragShader = loadFile('./shaders/groundNormFragShader.glsl');
@@ -105,7 +105,11 @@ function CreateSector( sector ){
       curXIndex = x;
 
       //console.log('-- z: ' + z + ' x: ' + x);
-      CreateShape(xPos, zPos, sector);
+
+      if ( sector == 1 && x == 0 )
+        CreateShape(xPos, zPos, sector, true, false);
+      else
+        CreateShape(xPos, zPos, sector, false, false);
 
       chunkMap.push([z,x]);
       chunkMap[z][x] = chunk;
@@ -116,11 +120,10 @@ function CreateSector( sector ){
   sectorMap.push( [ sector ] );
   sectorMap[ sector ] = chunkMap;
 
-  vertMaps.push( sector );
+  vertMaps.push( verticesMap );
   //vertMaps.push(  [ sector ]  );
   //vertMaps[ sector ] = verticesMap;
   verticesMap = [];
-  console.log(vertMaps);
 }
 
 function PrintChunkMap(){
@@ -136,89 +139,59 @@ function PrintChunkMap(){
   }
 }
 
-function CreateShape(xPos, zPos, sector){
+function CreateShape(xPos, zPos, sector, sectorLeft, sectorAbove) {
+
+  var i = 0;
+  var connectAbove = CheckConnection('above');
+  var connectBelow = CheckConnection('below');
 
   if ( sector == 0 ) {
-    var i = 0;
-    var connectAbove = CheckConnection('above');
-    var connectBelow = CheckConnection('below');
     var connectRight = CheckConnection('right');
     var connectLeft = CheckConnection('left');
-
-    options.amplitude = getRandomArbitrary(options.vertDistance / 5, options.vertDistance * 2);
-
-    for (var z = 0; z <= options.zSize; z++){
-      for (var x = 0; x <= options.xSize; x++){
-        var yNoise = Math.random() * options.amplitude;
-
-        if ( connectAbove && z == options.zSize -1){
-
-        }
-
-        if ( connectBelow && z == 0){
-          var vertMap = verticesMap[curZIndex - 1][curXIndex];
-          yNoise = vertMap[vertMap.length - options.zSize + (i-1)].y;
-        }
-
-        if ( connectRight && x == 0){
-          var vertMap = verticesMap[curZIndex][curXIndex - 1];
-          yNoise = vertMap[(i) + options.xSize].y;
-        }
-
-        if ( connectLeft && x == options.xSize-1) {
-          console.log("left");
-        }
-
-        vertices.push( new THREE.Vector3(xPos + x * options.vertDistance, yNoise, zPos + z * options.vertDistance) );
-
-        i++;
-      }
-    }
-
-    RenderChunk();
   }
-
   if ( sector == 1 ) {
-    var i = 0;
-    var connectAbove = CheckConnection('above', sector);
-    var connectBelow = CheckConnection('below', sector);
     var connectLeft = CheckConnection('right', sector);       //swapped for inverse x axis sector
     var connectRight = CheckConnection('left', sector);
-
-    options.amplitude = getRandomArbitrary(options.vertDistance / 5, options.vertDistance * 2);
-
-    for (var z = 0; z <= options.zSize; z++){
-      for (var x = 0; x <= options.xSize; x++){
-        var yNoise = Math.random() * options.amplitude;
-
-        if ( connectAbove && z == options.zSize -1){
-
-        }
-
-        if ( connectBelow && z == 0){
-          //var test = vertMaps[ sector ];
-          var vertMap = verticesMap[curZIndex - 1][curXIndex];
-          yNoise = vertMap[vertMap.length - options.zSize + (i-1)].y;
-        }
-
-        if ( connectRight && x == 0){
-          //var vertMap = verticesMap[curZIndex][curXIndex - 1];
-          //yNoise = vertMap[(i) + options.xSize].y;
-        }
-
-        if ( connectLeft && x == options.xSize) {
-          var vertMap = verticesMap[curZIndex][curXIndex - 1];
-          yNoise = vertMap[i - options.xSize].y;
-        }
-
-        vertices.push( new THREE.Vector3(xPos + x * options.vertDistance, yNoise, zPos + z * options.vertDistance) );
-
-        i++;
-      }
-    }
-
-    RenderChunk();
   }
+
+  options.amplitude = getRandomArbitrary(options.vertDistance / 5, options.vertDistance * 2);
+
+  for (var z = 0; z <= options.zSize; z++){
+    for (var x = 0; x <= options.xSize; x++){
+      var yNoise = Math.random() * options.amplitude;
+
+      if ( sector == 1 && sectorLeft && x == options.xSize){
+        var temp = vertMaps[ 0 ];
+        var vertMap = temp[curZIndex][curXIndex];
+        yNoise = vertMap[i - options.xSize].y;
+      }
+
+      if ( connectAbove && z == options.zSize -1){
+
+      }
+
+      if ( connectBelow && z == 0){
+        var vertMap = verticesMap[curZIndex - 1][curXIndex];
+        yNoise = vertMap[vertMap.length - options.zSize + (i-1)].y;
+      }
+
+      if ( connectRight && x == 0){
+        var vertMap = verticesMap[curZIndex][curXIndex - 1];
+        yNoise = vertMap[(i) + options.xSize].y;
+      }
+
+      if ( connectLeft && x == options.xSize) {
+        var vertMap = verticesMap[curZIndex][curXIndex - 1];
+        yNoise = vertMap[i - options.xSize].y;
+      }
+
+      vertices.push( new THREE.Vector3(xPos + x * options.vertDistance, yNoise, zPos + z * options.vertDistance) );
+
+      i++;
+    }
+  }
+
+  RenderChunk();
 }
 
 function CheckConnection(side, sector){
