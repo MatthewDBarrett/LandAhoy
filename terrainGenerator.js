@@ -6,6 +6,8 @@ var chunk = [];
 var chunks = [];
 var chunkMap = [];
 
+var sectorMap = [];           // 0 = TL | 1 = TR | 2 = BR | 3 = BL
+
 var vertices = [];
 var verticesMap = [];
 
@@ -25,7 +27,7 @@ var lastVertDis = 0;
 var lastXSize = 0;
 var lastZSize = 0;
 
-var startMapSize = 10;
+var startMapSize = 2;
 
 var groundVertShader = loadFile('./shaders/groundNormVertShader.glsl');
 var groundFragShader = loadFile('./shaders/groundNormFragShader.glsl');
@@ -47,7 +49,7 @@ var material = new THREE.ShaderMaterial({
 });
 
 var options = {
-  vertDistance: 150,
+  vertDistance: 1,
   xSize: 10,
   zSize: 10,
   amplitude: 1,
@@ -77,20 +79,58 @@ function UserInterface(){
 }
 
 function CreateWorld(){
+  CreateSector('TL');   //Top Left
+  CreateSector('TR');   //Top Left
+}
 
-  for (var z = 0; z < startMapSize; z++){                                 //creating chunks, each interation is another chunk generated
-    for (var x = 0; x < startMapSize; x++){
-      var zPos = ( options.vertDistance * ( options.zSize ) ) * z;
-      var xPos = ( options.vertDistance * ( options.xSize ) ) * x;
-      curZIndex = z;
-      curXIndex = x;
+function CreateSector( sector ){
+  switch ( sector ) {
+    case 'TL':
+      for (var z = 0; z < startMapSize; z++){                                 //creating chunks, each interation is another chunk generated
+        for (var x = 0; x < startMapSize; x++){
+          var zPos = ( options.vertDistance * ( options.zSize ) ) * z;
+          var xPos = ( options.vertDistance * ( options.xSize ) ) * x;
+          curZIndex = z;
+          curXIndex = x;
 
-      //console.log('-- z: ' + z + ' x: ' + x);
-      CreateShape(xPos, zPos);
-      chunkMap.push([z,x]);
-      chunkMap[z][x] = chunk;
-      chunk = [];
-    }
+          //console.log('-- z: ' + z + ' x: ' + x);
+          CreateShape(xPos, zPos);
+          chunkMap.push([z,x]);
+          chunkMap[z][x] = chunk;
+          chunk = [];
+        }
+      }
+      sectorMap.push([0]);
+      sectorMap[0] = chunkMap;
+      break;
+    case 'TR':
+      chunkMap = [];
+      for (var z = 0; z < startMapSize; z++){
+        for (var x = 0; x < startMapSize; x++){
+          var zPos = ( options.vertDistance * ( options.zSize ) ) * z;
+          if ( x == 0 )
+            var xPos = - ( options.vertDistance * ( options.xSize ) );
+          else
+            var xPos = -(x+1) * ( options.vertDistance * ( options.xSize ) );
+
+          curZIndex = z;
+          curXIndex = x;
+
+          CreateShape(xPos, zPos);
+          chunkMap.push([z,x]);
+          chunkMap[z][x] = chunk;
+          chunk = [];
+        }
+      }
+      sectorMap.push([1]);
+      sectorMap[1] = chunkMap;
+      break;
+    case 'BL':
+      break;
+    case 'BR':
+      break;
+    default:
+      break;
   }
 }
 
@@ -271,7 +311,7 @@ var animate = function() {
   curIndexPos = new THREE.Vector2(tempZ, tempX);
   //console.log("Z: " + curIndexPos.x + " X: " + curIndexPos.y);
 
-  toggleChunks();
+  //toggleChunks();
 
   if(lastVertDis != 0 && options.vertDistance != lastVertDis){
     UpdateSpheres();
