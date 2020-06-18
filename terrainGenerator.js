@@ -25,7 +25,7 @@ var lastVertDis = 0;
 var lastXSize = 0;
 var lastZSize = 0;
 
-var startMapSize = 10;
+var startMapSize = 5;
 
 var groundVertShader = loadFile('./shaders/groundNormVertShader.glsl');
 var groundFragShader = loadFile('./shaders/groundNormFragShader.glsl');
@@ -211,8 +211,8 @@ function DrawTriangle(v1, v2, v3){
   geom.faces.push( new THREE.Face3( 0, 1, 2) );
   geom.computeFaceNormals();
 
-  material.uniforms.lightColor.value = getLighting().getColor();
-  material.uniforms.lightPos.value = getLighting().getPosition();
+  material.uniforms.lightColor.value = getLighting().getSunlightColor();
+  material.uniforms.lightPos.value = getLighting().getSunlightPosition();
   material.uniforms.landscapeColor.value = new THREE.Vector3( 1, 1, 1);
   // material.lights = true;
 

@@ -3,7 +3,7 @@ import { cameraTracking } from '../cameraTracking.js';
 import { getCamera } from '../cameraTracking.js';
 import { terrainGenerator } from '../terrainGenerator.js';
 import { ParticleGen } from '../particleGeneration.js';
-import { Lighting } from '../lighting.js';
+import { Sunlight } from '../sunlight.js';
 
 var scene = new THREE.Scene();
 export function getScene(){
@@ -118,11 +118,13 @@ scene.add( skybox );
 // var spotlightHelper = new THREE.SpotLightHelper(spotLight);
 // scene.add(spotlightHelper);
 
-var lighting = new Lighting();
+var sunlight = new Sunlight();
 var terrain = new terrainGenerator();
+var angle = 0;
+var angleInc = 1;
 
 export function getLighting(){
-	return lighting;
+	return sunlight;
 }
 
 var animate = function () {
@@ -131,9 +133,8 @@ var animate = function () {
 	//    controls.update();
   //  }
 	var pos = getShipPos();
-	pos = new THREE.Vector3(pos.x, pos.y + 10, pos.z);
-	lighting.setPosition(pos);
-	lighting.getLight().target = GetShip();
+	pos = new THREE.Vector3(pos.x, pos.y, pos.z);
+	sunlight.update();
 
 	UpdateShip();
 	renderer.render(scene, getCamera());
@@ -148,7 +149,7 @@ function UpdateShip(){
 	var direction = new THREE.Vector3();
 
 	ship.getWorldDirection( direction );
-
+	sunlight.update();
 	//camera.position.set(ship.position.x, ship.position.y + 4, ship.position.z - 8);
 
 
