@@ -28,7 +28,7 @@ export function loadFile(filePath) {
 	}
 	return result;
   }
-  
+
 
 const clock = new THREE.Clock();
 
