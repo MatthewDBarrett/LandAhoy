@@ -30,6 +30,8 @@ var lastZSize = 0;
 
 var startMapSize = 2;
 
+var vertSelIteration = 0;
+
 var groundVertShader = loadFile('./shaders/groundNormVertShader.glsl');
 var groundFragShader = loadFile('./shaders/groundNormFragShader.glsl');
 groundVertShader = shaderParse(groundVertShader);
@@ -82,6 +84,8 @@ function UserInterface(){
 function CreateWorld(){
   CreateSector(0);   //Top Left
   CreateSector(1);   //Top Right
+  CreateSector(2);   //Bottom Right
+  CreateSector(3);   //Bottom Left
 }
 
 function CreateSector( sector ){
@@ -89,12 +93,21 @@ function CreateSector( sector ){
 
   for (var z = 0; z < startMapSize; z++){                                 //creating chunks, each interation is another chunk generated
     for (var x = 0; x < startMapSize; x++){
-      var zPos = ( options.vertDistance * ( options.zSize ) ) * z;
 
-      if ( sector == 0 )
+      if ( sector < 2 )
+        var zPos = ( options.vertDistance * ( options.zSize ) ) * z;
+
+      if ( sector >= 2 ) {
+        if ( z == 0 )
+          var zPos = - ( options.vertDistance * ( options.zSize ) );
+        else
+          var zPos = -(z+1) * ( options.vertDistance * ( options.zSize ) );
+      }
+
+      if ( sector == 0 || sector == 3 )
         var xPos = ( options.vertDistance * ( options.xSize ) ) * x;
 
-      if ( sector == 1 ){
+      if ( sector == 1 || sector == 2 ){
         if ( x == 0 )
           var xPos = - ( options.vertDistance * ( options.xSize ) );
         else
@@ -106,10 +119,24 @@ function CreateSector( sector ){
 
       //console.log('-- z: ' + z + ' x: ' + x);
 
-      if ( sector == 1 && x == 0 )
+      if ( sector == 1 && x == 0 ) {
         CreateShape(xPos, zPos, sector, true, false);
-      else
+      } else if ( sector == 2 && z == 0 ) {
+        CreateShape(xPos, zPos, sector, false, true);
+      } else if ( sector == 3 ) {
+        if ( z == 0 && x == 0 ) {
+          CreateShape(xPos, zPos, sector, true, true);
+        } else if ( z == 0 ) {
+          CreateShape(xPos, zPos, sector, false, true);
+        } else if ( x == 0 ) {
+          CreateShape(xPos, zPos, sector, true, false);
+        } else {
+          CreateShape(xPos, zPos, sector, false, false);
+        }
+      } else {
         CreateShape(xPos, zPos, sector, false, false);
+      }
+
 
       chunkMap.push([z,x]);
       chunkMap[z][x] = chunk;
@@ -142,14 +169,22 @@ function PrintChunkMap(){
 function CreateShape(xPos, zPos, sector, sectorLeft, sectorAbove) {
 
   var i = 0;
-  var connectAbove = CheckConnection('above');
-  var connectBelow = CheckConnection('below');
 
-  if ( sector == 0 ) {
+  if ( sector == 0 || sector == 1 ) {
+    var connectAbove = CheckConnection('above');
+    var connectBelow = CheckConnection('below');
+  }
+
+  if ( sector == 2 || sector == 3 ) {
+    var connectBelow = CheckConnection('above');
+    var connectAbove = CheckConnection('below');
+  }
+
+  if ( sector == 0 || sector == 3) {
     var connectRight = CheckConnection('right');
     var connectLeft = CheckConnection('left');
   }
-  if ( sector == 1 ) {
+  if ( sector == 1 || sector == 2 ) {
     var connectLeft = CheckConnection('right', sector);       //swapped for inverse x axis sector
     var connectRight = CheckConnection('left', sector);
   }
@@ -160,27 +195,44 @@ function CreateShape(xPos, zPos, sector, sectorLeft, sectorAbove) {
     for (var x = 0; x <= options.xSize; x++){
       var yNoise = Math.random() * options.amplitude;
 
-      if ( sector == 1 && sectorLeft && x == options.xSize){
-        var temp = vertMaps[ 0 ];
-        var vertMap = temp[curZIndex][curXIndex];
+      if ( sector == 1 && sectorLeft && x == options.xSize) {             //Combine TOP LEFT sector to TOP RIGHT sector
+        var sect = vertMaps[ sector - 1 ];
+        var vertMap = sect[curZIndex][curXIndex];
         yNoise = vertMap[i - options.xSize].y;
       }
 
-      if ( connectAbove && z == options.zSize -1){
-
-      }
-
-      if ( connectBelow && z == 0){
+      if ( sector < 2 && connectBelow && z == 0){                         //TOP Connect Below
         var vertMap = verticesMap[curZIndex - 1][curXIndex];
         yNoise = vertMap[vertMap.length - options.zSize + (i-1)].y;
       }
 
-      if ( connectRight && x == 0){
+      if ( sector >= 2 && sectorAbove && z == options.zSize) {                        //Cobmine BOTTOM RIGHT sector to TOP RIGHT sector
+        if ( sector == 2 )
+          var sect = vertMaps[ sector - 1 ];
+        else if ( sector == 3 )
+          var sect = vertMaps[ sector - 3 ];
+        var vertMap = sect[curZIndex][curXIndex];
+        yNoise = vertMap[ Math.abs(vertMap.length - i - (options.xSize + 1) ) ].y;
+        //VertSelector(vertMap[Math.abs(vertMap.length - i - (options.xSize + 1) )].z,vertMap[Math.abs(vertMap.length - i - (options.xSize + 1) )].x);
+      }
+
+      if ( sector == 3 && sectorLeft && x == 0 ) {
+        var sect = vertMaps[ sector - 1 ];
+        var vertMap = sect[curZIndex][curXIndex];
+        yNoise = vertMap[i + options.xSize].y;
+      }
+
+      if ( sector >= 2 && connectAbove && z == options.zSize) {            //BOTTOM Connect Above
+        var vertMap = verticesMap[curZIndex - 1][curXIndex];
+        yNoise = vertMap[ Math.abs(vertMap.length - i - (options.xSize + 1) ) ].y;
+      }
+
+      if ( connectRight && x == 0){                                       //Connect Right
         var vertMap = verticesMap[curZIndex][curXIndex - 1];
         yNoise = vertMap[(i) + options.xSize].y;
       }
 
-      if ( connectLeft && x == options.xSize) {
+      if ( connectLeft && x == options.xSize) {                           //Connect Left
         var vertMap = verticesMap[curZIndex][curXIndex - 1];
         yNoise = vertMap[i - options.xSize].y;
       }
@@ -245,6 +297,25 @@ function RenderChunk(){
   verticesMap.push([curZIndex,curXIndex]);
   verticesMap[curZIndex][curXIndex] = vertices;
   vertices = [];
+}
+
+function VertSelector(zPos, xPos) {
+  zPos *= options.vertDistance;
+  xPos *= options.vertDistance;
+
+  var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+
+  var points = [];
+  points.push( new THREE.Vector3( xPos, 0, zPos ) );
+  points.push( new THREE.Vector3( xPos, vertSelIteration + 2, zPos ) );
+
+  var geometry = new THREE.BufferGeometry().setFromPoints( points );
+
+  var line = new THREE.Line( geometry, material );
+
+  addToScene( line );
+
+  vertSelIteration += 0.25;
 }
 
 function DrawTriangle(v1, v2, v3){
