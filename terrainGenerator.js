@@ -33,7 +33,7 @@ groundVertShader = shaderParse(groundVertShader);
 groundFragShader = shaderParse(groundFragShader);
 
 var material = new THREE.ShaderMaterial({
-  vertexShader: groundVertShader, 
+  vertexShader: groundVertShader,
   fragmentShader: groundFragShader,
   uniforms: THREE.UniformsUtils.merge([
     THREE.UniformsLib.shadowmap,
@@ -50,7 +50,7 @@ var options = {
   vertDistance: 150,
   xSize: 10,
   zSize: 10,
-  amplitude: 125,
+  amplitude: 1,
   hide: ['None','Chunk 1','Chunk 2','Chunk 3'],
   show: ['None','Chunk 1','Chunk 2','Chunk 3']
 }
@@ -118,6 +118,8 @@ function CreateShape(xPos, zPos){
   //console.log("Right: " + ( connectRight ? "true" : "false") );
   var connectLeft = CheckConnection('left');
   //console.log("Left: " + ( connectLeft ? " true" : " false") );
+
+  options.amplitude = getRandomArbitrary(options.vertDistance / 5, options.vertDistance * 2);
 
   for (var z = 0; z <= options.zSize; z++){
     for (var x = 0; x <= options.xSize; x++){
@@ -219,7 +221,7 @@ function DrawTriangle(v1, v2, v3){
   var mesh = new THREE.Mesh( geom, new THREE.MeshPhongMaterial(0x00ff00) );
   mesh.receiveShadow = true;
   mesh.castShadow = false;
-  
+
   chunk.push(mesh);
   addToScene(mesh);
 }
@@ -364,6 +366,14 @@ function ShowChunk(z, x){
   var triArray = chunkMap[z][x];
   for (var i = 0; i < triArray.length; i++)
     triArray[i].visible = true;
+}
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
 }
 
 animate();

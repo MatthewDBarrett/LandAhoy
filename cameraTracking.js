@@ -37,7 +37,7 @@ export function cameraTracking(renderer) {   //constructor
   controls.dampingFactor = 0.25;
   controls.enableZoom = true;
   controls.minDistance = 0;
-  controls.maxDistance = 75; 
+  controls.maxDistance = 75;
 
   //Cube Instatiation
   geometry = new THREE.BoxGeometry( 1, 1, 1 );

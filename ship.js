@@ -84,7 +84,7 @@ var uniforms = {
   geometry.scale(0.3, 0.3, 0.3);
   particleMeshes.push([geometry, material, true]);
 
-  //NORMAL MESH 
+  //NORMAL MESH
   geometry = new THREE.TorusKnotBufferGeometry(10, 3, 4, 16 );
   // material = new THREE.MeshNormalMaterial();
   // material.transparent = true;
