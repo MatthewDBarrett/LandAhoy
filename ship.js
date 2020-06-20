@@ -102,6 +102,12 @@ var pivotUpper = new THREE.Object3D();
 var flashlight = new THREE.SpotLight( new THREE.Color(1,1,1), 0.4);
 var flashlightTarget = new THREE.Object3D();
 
+//PointLights
+var boosterUpperPointLight = new THREE.PointLight( 0x3e65c0, 1, 10, 2);
+var boosterRightPointLight = new THREE.PointLight( 0x3e65c0, 1, 10, 2);
+var boosterLeftPointLight = new THREE.PointLight( 0x3e65c0, 1, 10, 2);
+
+
 export function Ship(position, direction){
   this.Pos = position;
   this.Dir = direction;
@@ -149,6 +155,10 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   flashlight.angle = 0.26;
   flashlight.castShadow = true;
 
+  //Pointlight
+  boosterUpperPointLight.position.set( ship.position.x , ship.position.y + 0.75, ship.position.z - 2.2 );
+  boosterLeftPointLight.position.set( ship.position.x + 0.75, ship.position.y + 0.2, ship.position.z - 2.2 );
+  boosterRightPointLight.position.set( ship.position.x - 0.75, ship.position.y + 0.2, ship.position.z - 2.2 );
 
   //constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, autoGen, meshes, isDeviate, isRotate)
   boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 1, 0.1, true, particleMeshes, true, true );
@@ -187,6 +197,9 @@ function animate(){
     ship.add(pivotUpper);
     ship.add(flashlightTarget);
     ship.add(flashlight);
+    ship.add(boosterUpperPointLight);
+    ship.add(boosterRightPointLight);
+    ship.add(boosterLeftPointLight);
     flashlight.target = flashlightTarget;
 
     if(speed < 5){
