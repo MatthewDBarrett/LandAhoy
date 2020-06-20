@@ -56,7 +56,6 @@ export function cameraTracking(renderer) {   //constructor
   group.add( cubeA );
   group.add( cubeB );
   getScene().add( group );
-  //console.log(getScene());
 
   //Set Initialise flag to true to finish up.
   isInitialized = true;

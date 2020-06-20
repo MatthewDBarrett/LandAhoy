@@ -98,6 +98,9 @@ var pivotRight = new THREE.Object3D();
 var pivotUpper = new THREE.Object3D();
 //END OF SECTION FOR POSITIONING
 
+//Flashlight
+var flashlight = new THREE.SpotLight( new THREE.Color(1,1,1), 0.4);
+var flashlightTarget = new THREE.Object3D();
 
 export function Ship(position, direction){
   this.Pos = position;
@@ -138,6 +141,14 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   pivotLeft.position.set(ship.position.x + 0.75, ship.position.y + 0.2, ship.position.z - 2);
   pivotRight.position.set(ship.position.x - 0.75, ship.position.y + 0.2, ship.position.z - 2);
   pivotUpper.position.set(ship.position.x , ship.position.y + 0.75, ship.position.z - 2);
+  flashlightTarget.position.set(ship.position.x, ship.position.y-5, ship.position.z + 10);
+  flashlight.position.set(ship.position.x, ship.position.y-2, ship.position.z + 3);
+  flashlight.decay = 2;
+  flashlight.distance = 0;
+  flashlight.penumbra = 1;
+  flashlight.angle = 0.26;
+  flashlight.castShadow = true;
+
 
   //constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, autoGen, meshes, isDeviate, isRotate)
   boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 1, 0.1, true, particleMeshes, true, true );
@@ -174,6 +185,9 @@ function animate(){
     ship.add(pivotLeft);
     ship.add(pivotRight);
     ship.add(pivotUpper);
+    ship.add(flashlightTarget);
+    ship.add(flashlight);
+    flashlight.target = flashlightTarget;
 
     if(speed < 5){
       boosterParticleLeft.setMaxParticles(10);
