@@ -384,9 +384,8 @@ var animate = function() {
   var tempZ = Math.floor( ( getShipPos().z / options.zSize ) / options.vertDistance );
   var tempX = Math.floor( ( getShipPos().x / options.xSize ) / options.vertDistance );
   curIndexPos = new THREE.Vector2(tempZ, tempX);
-  //console.log("Z: " + curIndexPos.x + " X: " + curIndexPos.y);
 
-  //toggleChunks();
+  ToggleChunks2();
 
   if(lastVertDis != 0 && options.vertDistance != lastVertDis){
     UpdateSpheres();
@@ -432,53 +431,82 @@ var animate = function() {
 
 }
 
-function toggleChunks(){
-  if ( chunkMap.length > 0 ) {
-    var currentChunk = chunkMap[curIndexPos.x][curIndexPos.y];
+function ToggleChunks2() {
+  var currentSector;
+  var sectorIndex = new THREE.Vector2();
 
-    for ( var z = 0; z < chunkMap.length; z++ ) {                //Unshow all chunks
-      for ( var x = 0; x < chunkMap[z].length; x++ ) {
-        HideChunk(z,x);
-      }
-    }
+  if ( curIndexPos.x >= 0 && curIndexPos.y >= 0 ){
+    currentSector = 0;
+    sectorIndex = new THREE.Vector2( curIndexPos.x, curIndexPos.y );
+  } else if ( curIndexPos.x >= 0 && curIndexPos.y < 0 ) {
+    currentSector = 1;
+    sectorIndex = new THREE.Vector2( Math.abs( curIndexPos.x ), Math.abs( curIndexPos.y + 1 ) );
+  } else if ( curIndexPos.x < 0 && curIndexPos.y >= 0 ) {
+    currentSector = 3;
+    sectorIndex = new THREE.Vector2( Math.abs( curIndexPos.x  + 1 ), Math.abs( curIndexPos.y ) );
+  } else if ( curIndexPos.x < 0 && curIndexPos.y < 0 ) {
+    currentSector = 2;
+    sectorIndex = new THREE.Vector2( Math.abs( curIndexPos.x + 1 ), Math.abs( curIndexPos.y + 1 ) );
+  }
+  //console.log ( "SZX: ( " + currentSector + " | " + sectorIndex.x + ", " + sectorIndex.y + " )" );
 
-    if ( !currentChunk[0].visible )                             //check that currentChunk is visible
-      ShowChunk(curIndexPos.x, curIndexPos.y);
+  for ( var s = 0; s < sectorMap.length; s++ )
+    for ( var z = 0; z < chunkMap.length; z++ )         //Unshow all chunks
+      for ( var x = 0; x < chunkMap[z].length; x++ )
+        HideChunk( s, z, x );
 
-    if( !chunkMap[curIndexPos.x + 1][curIndexPos.y][0].visible )    //Above
-      ShowChunk(curIndexPos.x + 1, curIndexPos.y);
+  if ( sectorMap.length > 0) {
+    var cMap = sectorMap[ currentSector ];
+    var currentChunk = cMap[ sectorIndex.x ][ sectorIndex.y ];
 
-    if( !chunkMap[curIndexPos.x - 1][curIndexPos.y][0].visible )    //Below
-      ShowChunk(curIndexPos.x - 1, curIndexPos.y);
+    if ( !currentChunk[0].visible )                                                 //Current Chunk
+      ShowChunk(currentSector, sectorIndex.x, sectorIndex.y);
 
-    if( !chunkMap[curIndexPos.x][curIndexPos.y - 1][0].visible )    //Right
-      ShowChunk(curIndexPos.x, curIndexPos.y - 1);
+    if ( currentSector >= 2 ) {                                                     //Above
+      if ( sectorIndex.x == 0 ) {
+        ShowChunk( currentSector == 2 ? 1 : 0, sectorIndex.x, sectorIndex.y );
+      } else
+        ShowChunk(currentSector, sectorIndex.x - 1, sectorIndex.y);
+    } else
+      ShowChunk(currentSector, sectorIndex.x + 1, sectorIndex.y);
 
-    if( !chunkMap[curIndexPos.x][curIndexPos.y + 1][0].visible )    //Left
-      ShowChunk(curIndexPos.x, curIndexPos.y + 1);
+    if ( currentSector <= 1 ) {                                                     //Below
+      if ( sectorIndex.x == 0 ) {
+        ShowChunk( currentSector == 0 ? 3 : 2, sectorIndex.x, sectorIndex.y );
+      } else
+        ShowChunk(currentSector, sectorIndex.x - 1, sectorIndex.y);
+    } else
+      ShowChunk(currentSector, sectorIndex.x + 1, sectorIndex.y);
 
-    if( !chunkMap[curIndexPos.x + 1][curIndexPos.y + 1][0].visible )    //Top Left Corner
-      ShowChunk(curIndexPos.x + 1, curIndexPos.y + 1);
+    if ( currentSector == 0 || currentSector == 3 ) {                               //Right
+      if ( sectorIndex.y == 0 ) {
+        ShowChunk( currentSector == 0 ? 1 : 2, sectorIndex.x, sectorIndex.y );
+      } else
+        ShowChunk(currentSector, sectorIndex.x, sectorIndex.y - 1);
+    } else
+      ShowChunk(currentSector, sectorIndex.x, sectorIndex.y + 1);
 
-    if( !chunkMap[curIndexPos.x + 1][curIndexPos.y - 1][0].visible )    //Top Right Corner
-      ShowChunk(curIndexPos.x + 1, curIndexPos.y - 1);
+    if ( currentSector == 1 || currentSector == 2 ) {                               //Left
+      if ( sectorIndex.y == 0 ) {
+        ShowChunk( currentSector == 1 ? 0 : 3, sectorIndex.x, sectorIndex.y );
+      } else
+        ShowChunk(currentSector, sectorIndex.x, sectorIndex.y - 1);
+    } else
+      ShowChunk(currentSector, sectorIndex.x, sectorIndex.y + 1);
 
-    if( !chunkMap[curIndexPos.x - 1][curIndexPos.y + 1][0].visible )    //Bottom Left Corner
-      ShowChunk(curIndexPos.x - 1, curIndexPos.y + 1);
-
-    if( !chunkMap[curIndexPos.x - 1][curIndexPos.y - 1][0].visible )    //Bottom Right Corner
-      ShowChunk(curIndexPos.x - 1, curIndexPos.y - 1);
   }
 }
 
-function HideChunk(z, x){
-  var triArray = chunkMap[z][x];
+function HideChunk(sector, z, x){
+  var cMap = sectorMap[ sector ];
+  var triArray = cMap[z][x];
   for (var i = 0; i < triArray.length; i++)
     triArray[i].visible = false;
 }
 
-function ShowChunk(z, x){
-  var triArray = chunkMap[z][x];
+function ShowChunk(sector, z, x){
+  var cMap = sectorMap[ sector ];
+  var triArray = cMap[z][x];
   for (var i = 0; i < triArray.length; i++)
     triArray[i].visible = true;
 }
