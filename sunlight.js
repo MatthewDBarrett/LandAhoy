@@ -26,10 +26,10 @@ export class Sunlight{
         this.season.push(["night", new THREE.Color(67/255, 67/255, 103/255), 0.1]);
         this.season.push(["sunrise", new THREE.Color(1, 77/255, 0/255), 0.4]);
 
-        this.sunlightspot = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), new THREE.MeshNormalMaterial);
-        this.centerPointSunlight = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), new THREE.MeshNormalMaterial);
+        // this.sunlightspot = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), new THREE.MeshNormalMaterial);
+        this.centerPointSunlight = new THREE.Object3D();
         this.sunlight.position.set(this.sunlight.position.x + 10, this.sunlight.position.y, this.sunlight.position.z);
-        this.sunlightspot.position.set(this.sunlight.position.x + 10, this.sunlight.position.y, this.sunlight.position.z);
+        //this.sunlightspot.position.set(this.sunlight.position.x + 10, this.sunlight.position.y, this.sunlight.position.z);
         this.hemisphere.position.set(this.sunlight.position.x, this.sunlight.position.y, this.sunlight.position.z)
         this.centerPointSunlight.add(this.sunlight);
         this.centerPointSunlight.add(this.sunlightspot);
@@ -135,25 +135,23 @@ export class Sunlight{
         this.checkSeason();
         this.setSunlightTarget(GetShip());
         this.setCenterPoint(getShipPos());
-
-        console.log(this.overallTimer);
-        console.log(this.seasonTimer - 70);
+        console.log()
 
         //Lerping colours
         var lerpVal = 0;
         var needsLerp = false;
         var nextIndex = 0;
-        if(this.seasonTimer - 70 > 0){  
+        if((this.seasonTimer - 70) > 0){  
             if(this.seasonNum == this.prevSeasonNum){
                 needsLerp = true;
                 lerpVal = ( (this.seasonTimer - 70)/20 );
             }
             else{
-                if( !(this.seasonTimer - 70 > 0) ){
                     this.prevSeasonNum = this.seasonNum;
-                }
             }        
         }
+        // console.log(this.seasonTimer);
+        // console.log(lerpVal + " " + needsLerp);
 
         //getNextIndex
         nextIndex = (this.seasonNum + 1);

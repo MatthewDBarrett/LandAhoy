@@ -103,10 +103,9 @@ var flashlight = new THREE.SpotLight( new THREE.Color(1,1,1), 0.4);
 var flashlightTarget = new THREE.Object3D();
 
 //PointLights
-var boosterUpperPointLight = new THREE.PointLight( 0x3e65c0, 1, 10, 2);
-var boosterRightPointLight = new THREE.PointLight( 0x3e65c0, 1, 10, 2);
-var boosterLeftPointLight = new THREE.PointLight( 0x3e65c0, 1, 10, 2);
-
+var boosterUpperPointLight = new THREE.PointLight( 0x3e65c0,  5, 10, 2);
+var boosterRightPointLight = new THREE.PointLight( 0x3e65c0, 5, 10, 2);
+var boosterLeftPointLight = new THREE.PointLight( 0x3e65c0, 5, 10, 2);
 
 export function Ship(position, direction){
   this.Pos = position;
@@ -211,6 +210,22 @@ function animate(){
       boosterParticleLeft.setMaxParticles(speed * speed);
       boosterParticleRight.setMaxParticles(speed * speed);
       boosterParticleUpper.setMaxParticles(speed * speed);
+    }
+    
+    if(speed < 10){
+      boosterUpperPointLight.intensity = 1;
+      boosterRightPointLight.intensity = 1;
+      boosterLeftPointLight.intensity = 1;
+    }
+    else if(speed < 100){
+      boosterUpperPointLight.intensity = speed/20;
+      boosterRightPointLight.intensity = speed/20;
+      boosterLeftPointLight.intensity = speed/20;
+    }
+    else if(speed > 100){
+      boosterUpperPointLight.intensity = 7;
+      boosterRightPointLight.intensity = 7;
+      boosterLeftPointLight.intensity = 7;
     }
     //Setting Position
     var posVec1 = new THREE.Vector3();
