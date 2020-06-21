@@ -72,21 +72,21 @@ export function terrainGenerator(){
 }
 
 function init(){
-  UserInterface();
+  //UserInterface();
   CreateWorld();
 }
 
-function UserInterface(){
-  var gui = new dat.GUI();
-  var ter = gui.addFolder('Terrain');
-  ter.add(options, 'vertDistance', 0, 10).name('Terrain Size').listen();
-  ter.add(options, 'xSize', 0, 20).name('Width').listen();
-  ter.add(options, 'zSize', 0, 20).name('Length').listen();
-  ter.add(options, 'amplitude', 0, 10).name('Amplitude').listen();
-  ter.add(options, 'hide', ['None','Chunk 1','Chunk 2','Chunk 3']).listen();
-  ter.add(options, 'show', ['None','Chunk 1','Chunk 2','Chunk 3']).listen();
-  ter.open();
-}
+// function UserInterface(){
+//   var gui = new dat.GUI();
+//   var ter = gui.addFolder('Terrain');
+//   ter.add(options, 'vertDistance', 0, 10).name('Terrain Size').listen();
+//   ter.add(options, 'xSize', 0, 20).name('Width').listen();
+//   ter.add(options, 'zSize', 0, 20).name('Length').listen();
+//   ter.add(options, 'amplitude', 0, 10).name('Amplitude').listen();
+//   ter.add(options, 'hide', ['None','Chunk 1','Chunk 2','Chunk 3']).listen();
+//   ter.add(options, 'show', ['None','Chunk 1','Chunk 2','Chunk 3']).listen();
+//   ter.close();
+// }
 
 function CreateWorld(){
   CreateSector(0);   //Top Left
