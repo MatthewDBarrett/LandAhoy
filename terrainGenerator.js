@@ -15,6 +15,7 @@ var vertMaps = [];
 var toggledChunks = [];
 
 var curIndexPos = new THREE.Vector2();
+var currentSector = 0;
 
 var curZIndex = 0;
 var curXIndex = 0;
@@ -28,9 +29,15 @@ var lastVertDis = 0;
 var lastXSize = 0;
 var lastZSize = 0;
 
-var startMapSize = 2;
+var startMapSize = 10;
 
 var vertSelIteration = 0;
+
+var chunksToggled = false;
+
+var visibleChunks = [];
+
+var renderHeight = 5;
 
 var groundVertShader = loadFile('./shaders/groundNormVertShader.glsl');
 var groundFragShader = loadFile('./shaders/groundNormFragShader.glsl');
@@ -52,9 +59,9 @@ var material = new THREE.ShaderMaterial({
 });
 
 var options = {
-  vertDistance: 1,
-  xSize: 10,
-  zSize: 10,
+  vertDistance: 2,
+  xSize: 5,
+  zSize: 5,
   amplitude: 1,
   hide: ['None','Chunk 1','Chunk 2','Chunk 3'],
   show: ['None','Chunk 1','Chunk 2','Chunk 3']
@@ -93,64 +100,10 @@ function CreateSector( sector ){
 
   for (var z = 0; z < startMapSize; z++){                                 //creating chunks, each interation is another chunk generated
     for (var x = 0; x < startMapSize; x++){
-
-      if ( sector < 2 )
-        var zPos = ( options.vertDistance * ( options.zSize ) ) * z;
-
-      if ( sector >= 2 ) {
-        if ( z == 0 )
-          var zPos = - ( options.vertDistance * ( options.zSize ) );
-        else
-          var zPos = -(z+1) * ( options.vertDistance * ( options.zSize ) );
-      }
-
-      if ( sector == 0 || sector == 3 )
-        var xPos = ( options.vertDistance * ( options.xSize ) ) * x;
-
-      if ( sector == 1 || sector == 2 ){
-        if ( x == 0 )
-          var xPos = - ( options.vertDistance * ( options.xSize ) );
-        else
-          var xPos = -(x+1) * ( options.vertDistance * ( options.xSize ) );
-      }
-
-      curZIndex = z;
-      curXIndex = x;
-
-      //console.log('-- z: ' + z + ' x: ' + x);
-
-      if ( sector == 1 && x == 0 ) {
-        CreateShape(xPos, zPos, sector, true, false);
-      } else if ( sector == 2 && z == 0 ) {
-        CreateShape(xPos, zPos, sector, false, true);
-      } else if ( sector == 3 ) {
-        if ( z == 0 && x == 0 ) {
-          CreateShape(xPos, zPos, sector, true, true);
-        } else if ( z == 0 ) {
-          CreateShape(xPos, zPos, sector, false, true);
-        } else if ( x == 0 ) {
-          CreateShape(xPos, zPos, sector, true, false);
-        } else {
-          CreateShape(xPos, zPos, sector, false, false);
-        }
-      } else {
-        CreateShape(xPos, zPos, sector, false, false);
-      }
-
-
-      chunkMap.push([z,x]);
-      chunkMap[z][x] = chunk;
-
-      chunk = [];
+      NewChunk( sector, z, x );
     }
   }
-  sectorMap.push( [ sector ] );
-  sectorMap[ sector ] = chunkMap;
-
-  vertMaps.push( verticesMap );
-  //vertMaps.push(  [ sector ]  );
-  //vertMaps[ sector ] = verticesMap;
-  verticesMap = [];
+  UpdateSectorAndVert( sector );
 }
 
 function PrintChunkMap(){
@@ -198,12 +151,15 @@ function CreateShape(xPos, zPos, sector, sectorLeft, sectorAbove) {
       if ( sector == 1 && sectorLeft && x == options.xSize) {             //Combine TOP LEFT sector to TOP RIGHT sector
         var sect = vertMaps[ sector - 1 ];
         var vertMap = sect[curZIndex][curXIndex];
-        yNoise = vertMap[i - options.xSize].y;
+        yNoise = vertMap[i - options.xSize].y + renderHeight;
       }
 
       if ( sector < 2 && connectBelow && z == 0){                         //TOP Connect Below
-        var vertMap = verticesMap[curZIndex - 1][curXIndex];
-        yNoise = vertMap[vertMap.length - options.zSize + (i-1)].y;
+        if ( vertMaps[sector] )
+          var vertMap = vertMaps[sector][curZIndex - 1][curXIndex];
+        else
+          var vertMap = verticesMap[curZIndex - 1][curXIndex];
+        yNoise = vertMap[vertMap.length - options.zSize + (i-1)].y + renderHeight;
       }
 
       if ( sector >= 2 && sectorAbove && z == options.zSize) {                        //Cobmine BOTTOM RIGHT sector to TOP RIGHT sector
@@ -212,32 +168,32 @@ function CreateShape(xPos, zPos, sector, sectorLeft, sectorAbove) {
         else if ( sector == 3 )
           var sect = vertMaps[ sector - 3 ];
         var vertMap = sect[curZIndex][curXIndex];
-        yNoise = vertMap[ Math.abs(vertMap.length - i - (options.xSize + 1) ) ].y;
+        yNoise = vertMap[ Math.abs(vertMap.length - i - (options.xSize + 1) ) ].y + renderHeight;
         //VertSelector(vertMap[Math.abs(vertMap.length - i - (options.xSize + 1) )].z,vertMap[Math.abs(vertMap.length - i - (options.xSize + 1) )].x);
       }
 
       if ( sector == 3 && sectorLeft && x == 0 ) {
         var sect = vertMaps[ sector - 1 ];
         var vertMap = sect[curZIndex][curXIndex];
-        yNoise = vertMap[i + options.xSize].y;
+        yNoise = vertMap[i + options.xSize].y + renderHeight;
       }
 
       if ( sector >= 2 && connectAbove && z == options.zSize) {            //BOTTOM Connect Above
         var vertMap = verticesMap[curZIndex - 1][curXIndex];
-        yNoise = vertMap[ Math.abs(vertMap.length - i - (options.xSize + 1) ) ].y;
+        yNoise = vertMap[ Math.abs(vertMap.length - i - (options.xSize + 1) ) ].y + renderHeight;
       }
 
       if ( connectRight && x == 0){                                       //Connect Right
         var vertMap = verticesMap[curZIndex][curXIndex - 1];
-        yNoise = vertMap[(i) + options.xSize].y;
+        yNoise = vertMap[(i) + options.xSize].y + renderHeight;
       }
 
       if ( connectLeft && x == options.xSize) {                           //Connect Left
         var vertMap = verticesMap[curZIndex][curXIndex - 1];
-        yNoise = vertMap[i - options.xSize].y;
+        yNoise = vertMap[i - options.xSize].y + renderHeight;
       }
 
-      vertices.push( new THREE.Vector3(xPos + x * options.vertDistance, yNoise, zPos + z * options.vertDistance) );
+      vertices.push( new THREE.Vector3(xPos + x * options.vertDistance, yNoise - renderHeight, zPos + z * options.vertDistance) );
 
       i++;
     }
@@ -294,7 +250,10 @@ function RenderChunk(){
       DrawTriangle(triangle[0],triangle[1],triangle[2]);
     }
   }
-  verticesMap.push([curZIndex,curXIndex]);
+  if ( !verticesMap[curZIndex] )
+    verticesMap[curZIndex] = [];
+  //verticesMap.push([curZIndex,curXIndex]);
+  //console.log("ZX: ( " + curZIndex + ", " + curXIndex + " ) - " + vertices.length);
   verticesMap[curZIndex][curXIndex] = vertices;
   vertices = [];
 }
@@ -306,8 +265,8 @@ function VertSelector(zPos, xPos) {
   var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
 
   var points = [];
-  points.push( new THREE.Vector3( xPos, 0, zPos ) );
-  points.push( new THREE.Vector3( xPos, vertSelIteration + 2, zPos ) );
+  points.push( new THREE.Vector3( xPos, -renderHeight, zPos ) );
+  points.push( new THREE.Vector3( xPos, vertSelIteration + 2 -renderHeight, zPos ) );
 
   var geometry = new THREE.BufferGeometry().setFromPoints( points );
 
@@ -381,11 +340,39 @@ function UpdateSpheres(){
 var animate = function() {
   requestAnimationFrame( animate );
 
+  var lastIndexPos = curIndexPos;
+
   var tempZ = Math.floor( ( getShipPos().z / options.zSize ) / options.vertDistance );
   var tempX = Math.floor( ( getShipPos().x / options.xSize ) / options.vertDistance );
   curIndexPos = new THREE.Vector2(tempZ, tempX);
 
-  ToggleChunks2();
+  var lastSector = currentSector;
+
+  var sectorIndex = new THREE.Vector2();
+
+  if ( curIndexPos.x >= 0 && curIndexPos.y >= 0 ){
+    currentSector = 0;
+    sectorIndex = new THREE.Vector2( curIndexPos.x, curIndexPos.y );
+  } else if ( curIndexPos.x >= 0 && curIndexPos.y < 0 ) {
+    currentSector = 1;
+    sectorIndex = new THREE.Vector2( Math.abs( curIndexPos.x ), Math.abs( curIndexPos.y + 1 ) );
+  } else if ( curIndexPos.x < 0 && curIndexPos.y >= 0 ) {
+    currentSector = 3;
+    sectorIndex = new THREE.Vector2( Math.abs( curIndexPos.x  + 1 ), Math.abs( curIndexPos.y ) );
+  } else if ( curIndexPos.x < 0 && curIndexPos.y < 0 ) {
+    currentSector = 2;
+    sectorIndex = new THREE.Vector2( Math.abs( curIndexPos.x + 1 ), Math.abs( curIndexPos.y + 1 ) );
+  }
+
+  if ( sectorMap.length > 0) {
+    if ( chunksToggled ) {
+      if ( currentSector != lastSector || curIndexPos.x != lastIndexPos.x || curIndexPos.y != lastIndexPos.y )
+        ToggleChunks( currentSector, sectorIndex );
+    } else {
+      ToggleChunks( currentSector, sectorIndex );
+      chunksToggled = true;
+    }
+  }
 
   if(lastVertDis != 0 && options.vertDistance != lastVertDis){
     UpdateSpheres();
@@ -431,70 +418,113 @@ var animate = function() {
 
 }
 
-function ToggleChunks2() {
-  var currentSector;
-  var sectorIndex = new THREE.Vector2();
+function ToggleChunks( currentSector, sectorIndex ) {
+  var cMap = sectorMap[ currentSector ];
 
-  if ( curIndexPos.x >= 0 && curIndexPos.y >= 0 ){
-    currentSector = 0;
-    sectorIndex = new THREE.Vector2( curIndexPos.x, curIndexPos.y );
-  } else if ( curIndexPos.x >= 0 && curIndexPos.y < 0 ) {
-    currentSector = 1;
-    sectorIndex = new THREE.Vector2( Math.abs( curIndexPos.x ), Math.abs( curIndexPos.y + 1 ) );
-  } else if ( curIndexPos.x < 0 && curIndexPos.y >= 0 ) {
-    currentSector = 3;
-    sectorIndex = new THREE.Vector2( Math.abs( curIndexPos.x  + 1 ), Math.abs( curIndexPos.y ) );
-  } else if ( curIndexPos.x < 0 && curIndexPos.y < 0 ) {
-    currentSector = 2;
-    sectorIndex = new THREE.Vector2( Math.abs( curIndexPos.x + 1 ), Math.abs( curIndexPos.y + 1 ) );
+  var createNewChunk = false;
+  if ( cMap[ sectorIndex.x ] ) {
+    if ( cMap[ sectorIndex.x ][ sectorIndex.y ] < 10) {
+      createNewChunk = true;
+    }
+  } else {
+    createNewChunk = true;
   }
-  //console.log ( "SZX: ( " + currentSector + " | " + sectorIndex.x + ", " + sectorIndex.y + " )" );
 
-  for ( var s = 0; s < sectorMap.length; s++ )
-    for ( var z = 0; z < chunkMap.length; z++ )         //Unshow all chunks
-      for ( var x = 0; x < chunkMap[z].length; x++ )
-        HideChunk( s, z, x );
+  if ( createNewChunk ) {
+    NewChunk( currentSector, sectorIndex.x, sectorIndex.y );
+    UpdateSectorAndVert( currentSector );
+  }
 
-  if ( sectorMap.length > 0) {
-    var cMap = sectorMap[ currentSector ];
-    var currentChunk = cMap[ sectorIndex.x ][ sectorIndex.y ];
+  var currentChunk = cMap[ sectorIndex.x ][ sectorIndex.y ];
 
-    if ( !currentChunk[0].visible )                                                 //Current Chunk
-      ShowChunk(currentSector, sectorIndex.x, sectorIndex.y);
+  if ( !chunksToggled ) {
+    for ( var s = 0; s < sectorMap.length; s++ )
+      for ( var z = 0; z < chunkMap.length; z++ )         //Unshow all chunks
+        for ( var x = 0; x < chunkMap[z].length; x++ )
+          HideChunk( s, z, x );
+  } else {
+    for ( var i = 0; i < visibleChunks.length; i++ ) {
+      HideChunk( visibleChunks[ i ].x, visibleChunks[ i ].y, visibleChunks[ i ].z );
+    }
+    visibleChunks = [];
+  }
 
-    if ( currentSector >= 2 ) {                                                     //Above
-      if ( sectorIndex.x == 0 ) {
-        ShowChunk( currentSector == 2 ? 1 : 0, sectorIndex.x, sectorIndex.y );
-      } else
-        ShowChunk(currentSector, sectorIndex.x - 1, sectorIndex.y);
+  ShowChunk(currentSector, sectorIndex.x, sectorIndex.y);                             //Current Chunk
+
+  if ( currentSector >= 2 ) {                                                     //Above
+    if ( sectorIndex.x == 0 ) {
+      ShowChunk( currentSector == 2 ? 1 : 0, sectorIndex.x, sectorIndex.y );
     } else
+      ShowChunk(currentSector, sectorIndex.x - 1, sectorIndex.y);
+  } else
       ShowChunk(currentSector, sectorIndex.x + 1, sectorIndex.y);
 
-    if ( currentSector <= 1 ) {                                                     //Below
-      if ( sectorIndex.x == 0 ) {
-        ShowChunk( currentSector == 0 ? 3 : 2, sectorIndex.x, sectorIndex.y );
-      } else
-        ShowChunk(currentSector, sectorIndex.x - 1, sectorIndex.y);
+
+  // if ( currentSector >= 2 ) {                                                     //Above
+  //   if ( sectorIndex.x == 0 ) {
+  //     if ( typeof sectorMap[ currentSector == 2 ? 1 : 0 ][ sectorIndex.x ][ sectorIndex.y  ] == 'undefined' )
+  //       console.log('');
+  //     else
+  //       ShowChunk( currentSector == 2 ? 1 : 0, sectorIndex.x, sectorIndex.y );
+  //   } else
+  //     ShowChunk(currentSector, sectorIndex.x - 1, sectorIndex.y);
+  // } else
+  //     ShowChunk(currentSector, sectorIndex.x + 1, sectorIndex.y);
+
+  if ( currentSector <= 1 ) {                                                     //Below
+    if ( sectorIndex.x == 0 ) {
+      ShowChunk( currentSector == 0 ? 3 : 2, sectorIndex.x, sectorIndex.y );
     } else
+      ShowChunk(currentSector, sectorIndex.x - 1, sectorIndex.y);
+  } else
       ShowChunk(currentSector, sectorIndex.x + 1, sectorIndex.y);
 
-    if ( currentSector == 0 || currentSector == 3 ) {                               //Right
-      if ( sectorIndex.y == 0 ) {
-        ShowChunk( currentSector == 0 ? 1 : 2, sectorIndex.x, sectorIndex.y );
-      } else
-        ShowChunk(currentSector, sectorIndex.x, sectorIndex.y - 1);
+  if ( currentSector == 0 || currentSector == 3 ) {                               //Right
+    if ( sectorIndex.y == 0 ) {
+      ShowChunk( currentSector == 0 ? 1 : 2, sectorIndex.x, sectorIndex.y );
     } else
+      ShowChunk(currentSector, sectorIndex.x, sectorIndex.y - 1);
+  } else
       ShowChunk(currentSector, sectorIndex.x, sectorIndex.y + 1);
 
-    if ( currentSector == 1 || currentSector == 2 ) {                               //Left
-      if ( sectorIndex.y == 0 ) {
-        ShowChunk( currentSector == 1 ? 0 : 3, sectorIndex.x, sectorIndex.y );
-      } else
-        ShowChunk(currentSector, sectorIndex.x, sectorIndex.y - 1);
+  if ( currentSector == 1 || currentSector == 2 ) {                               //Left
+    if ( sectorIndex.y == 0 ) {
+      ShowChunk( currentSector == 1 ? 0 : 3, sectorIndex.x, sectorIndex.y );
     } else
+      ShowChunk(currentSector, sectorIndex.x, sectorIndex.y - 1);
+  } else
       ShowChunk(currentSector, sectorIndex.x, sectorIndex.y + 1);
 
-  }
+  if ( currentSector == 0 ) {                                                    //Top Left
+    ShowChunk(currentSector, sectorIndex.x + 1, sectorIndex.y + 1);
+  } else if ( currentSector == 1 ) {
+    sectorIndex.y == 0 ? ShowChunk(0, sectorIndex.x + 1, sectorIndex.y) : ShowChunk(1, sectorIndex.x + 1, sectorIndex.y - 1);
+  } else if ( currentSector == 2 ) {
+    if ( sectorIndex.y == 0 ){
+      sectorIndex.x == 0 ? ShowChunk(0, 0, 0) : ShowChunk(3, sectorIndex.x - 1, sectorIndex.y);
+    } else if ( sectorIndex.x == 0 ){
+      ShowChunk(1, sectorIndex.x, sectorIndex.y - 1);
+    } else {
+      ShowChunk(2, sectorIndex.x - 1, sectorIndex.y - 1);
+    }
+  } else if ( currentSector == 3 )
+    sectorIndex.x == 0 ? ShowChunk(0, sectorIndex.x, sectorIndex.y + 1) : ShowChunk(3, sectorIndex.x - 1, sectorIndex.y + 1);
+
+  if ( currentSector == 1 ) {                                                    //Top Right
+    ShowChunk(currentSector, sectorIndex.x + 1, sectorIndex.y + 1);
+  } else if ( currentSector == 0 ) {
+    sectorIndex.y == 0 ? ShowChunk(1, sectorIndex.x + 1, sectorIndex.y) : ShowChunk(0, sectorIndex.x + 1, sectorIndex.y - 1);
+  } else if ( currentSector == 3 ) {
+    if ( sectorIndex.y == 0 ){
+      sectorIndex.x == 0 ? ShowChunk(1, 0, 0) : ShowChunk(2, sectorIndex.x - 1, sectorIndex.y);
+    } else if ( sectorIndex.x == 0 ){
+      ShowChunk(0, sectorIndex.x, sectorIndex.y - 1);
+    } else {
+      ShowChunk(3, sectorIndex.x - 1, sectorIndex.y - 1);
+    }
+  } else if ( currentSector == 2 )
+    sectorIndex.x == 0 ? ShowChunk(1, sectorIndex.x, sectorIndex.y + 1) : ShowChunk(2, sectorIndex.x - 1, sectorIndex.y + 1);
+
 }
 
 function HideChunk(sector, z, x){
@@ -505,6 +535,7 @@ function HideChunk(sector, z, x){
 }
 
 function ShowChunk(sector, z, x){
+  visibleChunks.push( new THREE.Vector3( sector, z, x ) );
   var cMap = sectorMap[ sector ];
   var triArray = cMap[z][x];
   for (var i = 0; i < triArray.length; i++)
@@ -517,6 +548,86 @@ function getRandomInt(max) {
 
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
+}
+
+function MergeSectorsAndCreate( sect, zPos, xPos, z, x ) {
+  if ( sect == 1 && x == 0 ) {
+    CreateShape(xPos, zPos, sect, true, false);
+  } else if ( sect == 2 && z == 0 ) {
+    CreateShape(xPos, zPos, sect, false, true);
+  } else if ( sect == 3 ) {
+    if ( z == 0 && x == 0 ) {
+      CreateShape(xPos, zPos, sect, true, true);
+    } else if ( z == 0 ) {
+      CreateShape(xPos, zPos, sect, false, true);
+    } else if ( x == 0 ) {
+      CreateShape(xPos, zPos, sect, true, false);
+    } else {
+      CreateShape(xPos, zPos, sect, false, false);
+    }
+  } else {
+    CreateShape(xPos, zPos, sect, false, false);
+  }
+}
+
+function DetermineZPos( sect, z ){
+  var zPos = 0;
+
+  if ( sect < 2 )
+    zPos = ( options.vertDistance * ( options.zSize ) ) * z;
+
+  if ( sect >= 2 ) {
+    if ( z == 0 )
+      zPos = - ( options.vertDistance * ( options.zSize ) );
+    else
+      zPos = -(z+1) * ( options.vertDistance * ( options.zSize ) );
+  }
+
+  return zPos;
+}
+
+function DetermineXPos( sect, x ){
+  var xPos = 0;
+
+  if ( sect == 0 || sect == 3 )
+    xPos = ( options.vertDistance * ( options.xSize ) ) * x;
+
+  if ( sect == 1 || sect == 2 ){
+    if ( x == 0 )
+      xPos = - ( options.vertDistance * ( options.xSize ) );
+    else
+      xPos = -(x+1) * ( options.vertDistance * ( options.xSize ) );
+  }
+
+  return xPos;
+}
+
+function NewChunk( sect, z, x ){
+  var zPos = DetermineZPos( sect, z );
+  var xPos = DetermineXPos( sect, x );
+
+  curZIndex = z;
+  curXIndex = x;
+
+  MergeSectorsAndCreate( sect, zPos, xPos, z, x );
+
+  chunkMap.push([z,x]);
+  chunkMap[z][x] = chunk;
+
+  chunk = [];
+}
+
+function UpdateSectorAndVert( sect ){
+  if ( sectorMap.length != 4 )
+    sectorMap.push( [ sect ] );
+
+  sectorMap[ sect ] = chunkMap;
+
+  if ( vertMaps.length != 4 )
+    vertMaps.push( sect );
+
+  vertMaps[ sect ] = verticesMap;
+  verticesMap = [];
 }
 
 animate();
