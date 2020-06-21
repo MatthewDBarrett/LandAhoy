@@ -32,11 +32,11 @@ export class Sunlight{
         //this.sunlightspot.position.set(this.sunlight.position.x + 10, this.sunlight.position.y, this.sunlight.position.z);
         this.hemisphere.position.set(this.sunlight.position.x, this.sunlight.position.y, this.sunlight.position.z)
         this.centerPointSunlight.add(this.sunlight);
-        this.centerPointSunlight.add(this.sunlightspot);
-        
+        //this.centerPointSunlight.add(this.sunlightspot);
+
         this.sunlight.castShadow = true;
         this.sunlight.receiveShadow = true;
-        
+
         this.addToScene(this.centerPointSunlight);
         this.addToScene(this.hemisphere);
         this.addToScene(this.ambient);
@@ -116,10 +116,10 @@ export class Sunlight{
     }
 
     setCenterPointRotation(rotZ){
-        this.centerPointSunlight.rotation.set(0,0,0); 
+        this.centerPointSunlight.rotation.set(0,0,0);
         this.centerPointSunlight.rotateZ(rotZ);
     }
-    
+
     setSunlightIntensity(intensity){
         this.sunlight.intensity = intensity;
     }
@@ -141,14 +141,14 @@ export class Sunlight{
         var lerpVal = 0;
         var needsLerp = false;
         var nextIndex = 0;
-        if((this.seasonTimer - 70) > 0){  
+        if((this.seasonTimer - 70) > 0){
             if(this.seasonNum == this.prevSeasonNum){
                 needsLerp = true;
                 lerpVal = ( (this.seasonTimer - 70)/20 );
             }
             else{
                     this.prevSeasonNum = this.seasonNum;
-            }        
+            }
         }
         // console.log(this.seasonTimer);
         // console.log(lerpVal + " " + needsLerp);
@@ -165,10 +165,10 @@ export class Sunlight{
         else{
             this.setSunlightColor( this.season[this.seasonNum][1].clone() );
         }
-        
+
         //garbage sun rotation
         this.setCenterPointRotation(THREE.Math.degToRad(this.overallTimer%360));
-        
+
         //Finish this tomorrow
         //Implement the clock, and time the sunset, sunrise, morning and night,
         //Implement the lerp function for colours, by storing the colour in var

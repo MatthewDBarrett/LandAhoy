@@ -29,7 +29,7 @@ var lastVertDis = 0;
 var lastXSize = 0;
 var lastZSize = 0;
 
-var startMapSize = 5;
+var startMapSize = 10;
 
 var vertSelIteration = 0;
 
@@ -37,7 +37,7 @@ var chunksToggled = false;
 
 var visibleChunks = [];
 
-var renderHeight = 5;
+var renderHeight = 175;
 
 var groundVertShader = loadFile('./shaders/groundNormVertShader.glsl');
 var groundFragShader = loadFile('./shaders/groundNormFragShader.glsl');
@@ -59,10 +59,10 @@ var material = new THREE.ShaderMaterial({
 });
 
 var options = {
-  vertDistance: 2,
+  vertDistance: 200,
   xSize: 5,
   zSize: 5,
-  amplitude: 1,
+  amplitude: 175,
   hide: ['None','Chunk 1','Chunk 2','Chunk 3'],
   show: ['None','Chunk 1','Chunk 2','Chunk 3']
 }
