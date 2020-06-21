@@ -421,19 +421,19 @@ var animate = function() {
 function ToggleChunks( currentSector, sectorIndex ) {
   var cMap = sectorMap[ currentSector ];
 
-  var createNewChunk = false;
-  if ( cMap[ sectorIndex.x ] ) {
-    if ( cMap[ sectorIndex.x ][ sectorIndex.y ] < 10) {
-      createNewChunk = true;
-    }
-  } else {
-    createNewChunk = true;
-  }
-
-  if ( createNewChunk ) {
-    NewChunk( currentSector, sectorIndex.x, sectorIndex.y );
-    UpdateSectorAndVert( currentSector );
-  }
+  // var createNewChunk = false;
+  // if ( cMap[ sectorIndex.x ] ) {
+  //   if ( cMap[ sectorIndex.x ][ sectorIndex.y ] < 10) {
+  //     createNewChunk = true;
+  //   }
+  // } else {
+  //   createNewChunk = true;
+  // }
+  //
+  // if ( createNewChunk ) {
+  //   NewChunk( currentSector, sectorIndex.x, sectorIndex.y );
+  //   UpdateSectorAndVert( currentSector );
+  // }
 
   var currentChunk = cMap[ sectorIndex.x ][ sectorIndex.y ];
 
@@ -449,7 +449,7 @@ function ToggleChunks( currentSector, sectorIndex ) {
     visibleChunks = [];
   }
 
-  ShowChunk(currentSector, sectorIndex.x, sectorIndex.y);                             //Current Chunk
+  ShowChunk(currentSector, sectorIndex.x, sectorIndex.y);                         //Current Chunk
 
   if ( currentSector >= 2 ) {                                                     //Above
     if ( sectorIndex.x == 0 ) {
@@ -458,18 +458,6 @@ function ToggleChunks( currentSector, sectorIndex ) {
       ShowChunk(currentSector, sectorIndex.x - 1, sectorIndex.y);
   } else
       ShowChunk(currentSector, sectorIndex.x + 1, sectorIndex.y);
-
-
-  // if ( currentSector >= 2 ) {                                                     //Above
-  //   if ( sectorIndex.x == 0 ) {
-  //     if ( typeof sectorMap[ currentSector == 2 ? 1 : 0 ][ sectorIndex.x ][ sectorIndex.y  ] == 'undefined' )
-  //       console.log('');
-  //     else
-  //       ShowChunk( currentSector == 2 ? 1 : 0, sectorIndex.x, sectorIndex.y );
-  //   } else
-  //     ShowChunk(currentSector, sectorIndex.x - 1, sectorIndex.y);
-  // } else
-  //     ShowChunk(currentSector, sectorIndex.x + 1, sectorIndex.y);
 
   if ( currentSector <= 1 ) {                                                     //Below
     if ( sectorIndex.x == 0 ) {
@@ -559,17 +547,21 @@ function ToggleChunks( currentSector, sectorIndex ) {
 
 function HideChunk(sector, z, x){
   var cMap = sectorMap[ sector ];
-  var triArray = cMap[z][x];
-  for (var i = 0; i < triArray.length; i++)
-    triArray[i].visible = false;
+  if ( !(typeof cMap[z][x] === "undefined") ) {
+    var triArray = cMap[z][x];
+    for (var i = 0; i < triArray.length; i++)
+      triArray[i].visible = false;
+  }
 }
 
 function ShowChunk(sector, z, x){
   visibleChunks.push( new THREE.Vector3( sector, z, x ) );
   var cMap = sectorMap[ sector ];
-  var triArray = cMap[z][x];
-  for (var i = 0; i < triArray.length; i++)
-    triArray[i].visible = true;
+  if ( !(typeof cMap[z][x] === "undefined") ) {
+    var triArray = cMap[z][x];
+    for (var i = 0; i < triArray.length; i++)
+      triArray[i].visible = true;
+  }
 }
 
 function getRandomInt(max) {
