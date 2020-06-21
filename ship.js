@@ -18,7 +18,7 @@ var increasePitch = false;
 
 var speed = 0;
 var minSpeed = 0;
-var maxSpeed = 1000;
+var maxSpeed = 300;
 
 var rollSpeed = 1000;
 var yawSpeed = 350;
@@ -101,11 +101,22 @@ var pivotUpper = new THREE.Object3D();
 //Flashlight
 var flashlight = new THREE.SpotLight( new THREE.Color(1,1,1), 0.4);
 var flashlightTarget = new THREE.Object3D();
+var isFlashlightActive = false;
 
 //PointLights
 var boosterUpperPointLight = new THREE.PointLight( 0x3e65c0,  5, 10, 2);
 var boosterRightPointLight = new THREE.PointLight( 0x3e65c0, 5, 10, 2);
 var boosterLeftPointLight = new THREE.PointLight( 0x3e65c0, 5, 10, 2);
+
+//Boost
+// var boostActive = false;
+// var maxBoostTime = 2;
+// var boostUsed = 0;
+// var cooldownProgress = 0;
+// var cooldown = 1.5;
+// var maxBoostSpeed = 700;
+// var boostAllowed = true;
+// var cooldownActive = false;
 
 export function Ship(position, direction){
   this.Pos = position;
@@ -187,6 +198,57 @@ function animate(){
     updateShip();
   }
 
+  // console.log("Boost Allowed: " + boostAllowed);
+  // console.log("Boost Used: " + boostUsed);
+  // console.log("Speed: " + speed );
+  // console.log("cooldownProgress: " + cooldownProgress );
+  // console.log("boost Active: " + boostActive);
+  // console.log("maxBoostTime: " + maxBoostTime);
+  // console.log("maxBoostSpeed: " + maxBoostSpeed)
+  // console.log("cooldownActive: " + cooldownActive);
+
+  // //Boost
+  // if( boostActive || cooldownActive){
+  //   if( (boostUsed < maxBoostTime) && boostAllowed){
+  //     speed += 75;
+  //     if(speed > maxBoostSpeed){
+  //       speed = maxBoostSpeed;
+  //     }
+  //     boostUsed += delta;
+  //     if(boostUsed >= maxBoostTime){
+  //       boostUsed = maxBoostTime;
+  //       boostAllowed = false;
+  //       cooldownActive = true;
+  //     }
+  //   }
+  //   if(!boostAllowed){
+  //     //start cooldown
+  //     cooldownProgress += delta;
+  //     if(speed > maxSpeed){
+  //       speed -= 100;
+  //       if(speed < maxSpeed){
+  //         speed = maxSpeed;
+  //       }
+  //     }
+  //     if(cooldownProgress >= cooldown){
+  //       boostUsed -= delta;
+  //       if(boostUsed <= 0){
+  //         boostUsed = 0;
+  //         boostAllowed = true;
+  //         cooldownActive = false;
+  //       }
+  //     }
+  //   }
+  //   else if( !boostActive ){
+  //     if(speed > maxSpeed){
+  //       speed -= 100;
+  //       if(speed < maxSpeed){
+  //         speed = maxSpeed;
+  //       }
+  //     }
+  //   }
+  // }
+
   if(isInitialised){
     ship.traverse(function(child){
       child.castShadow = true;
@@ -196,6 +258,12 @@ function animate(){
     ship.add(pivotUpper);
     ship.add(flashlightTarget);
     ship.add(flashlight);
+    if(isFlashlightActive){   
+      flashlight.intensity = 0.4;
+    }
+    else{
+      flashlight.intensity = 0;
+    }
     ship.add(boosterUpperPointLight);
     ship.add(boosterRightPointLight);
     ship.add(boosterLeftPointLight);
@@ -227,6 +295,12 @@ function animate(){
       boosterRightPointLight.intensity = 7;
       boosterLeftPointLight.intensity = 7;
     }
+    else if(speed > 500){
+      boosterUpperPointLight.intensity = 10;
+      boosterRightPointLight.intensity = 10;
+      boosterLeftPointLight.intensity = 10;
+    }
+
     //Setting Position
     var posVec1 = new THREE.Vector3();
     var posVec2 = new THREE.Vector3();
@@ -294,7 +368,7 @@ function ShipControls(){
       Dir.z += rollSpeed/4 * delta;
   }
   if (increaseSpeed) {
-    if ( speed < maxSpeed)
+    if ( speed < maxSpeed && !boostActive)
       speed++;
   }
   if (decreaseSpeed) {
@@ -334,7 +408,12 @@ function updateShip(){
 var onKeyDown = function ( event ) {
 
   switch ( event.keyCode ) {
-
+    // case 32: //space
+    //   boostActive = true;
+    //   break;
+    case 49: //1
+      isFlashlightActive = !isFlashlightActive;
+      break;
     case 87: // w
       decreasePitch = true;
       break;
@@ -363,7 +442,9 @@ var onKeyDown = function ( event ) {
 var onKeyUp = function ( event ) {
 
   switch( event.keyCode ) {
-
+    // case 32: //space
+    //   boostActive = false;
+    //   break;
     case 87: // w
       decreasePitch = false;
       break;
