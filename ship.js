@@ -368,7 +368,7 @@ function ShipControls(){
       Dir.z += rollSpeed/4 * delta;
   }
   if (increaseSpeed) {
-    if ( speed < maxSpeed && !boostActive)
+    if ( speed < maxSpeed)
       speed++;
   }
   if (decreaseSpeed) {
