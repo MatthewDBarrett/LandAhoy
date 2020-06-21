@@ -525,6 +525,36 @@ function ToggleChunks( currentSector, sectorIndex ) {
   } else if ( currentSector == 2 )
     sectorIndex.x == 0 ? ShowChunk(1, sectorIndex.x, sectorIndex.y + 1) : ShowChunk(2, sectorIndex.x - 1, sectorIndex.y + 1);
 
+  if ( currentSector == 2 ) {                                                    //Bottom Right
+    ShowChunk(currentSector, sectorIndex.x + 1, sectorIndex.y + 1);
+  } else if ( currentSector == 1 ) {
+    sectorIndex.x == 0 ? ShowChunk(2, sectorIndex.x, sectorIndex.y + 1) : ShowChunk(1, sectorIndex.x - 1, sectorIndex.y + 1);
+  } else if ( currentSector == 0 ) {
+    if ( sectorIndex.y == 0 ){
+      sectorIndex.x == 0 ? ShowChunk(2, 0, 0) : ShowChunk(1, sectorIndex.x - 1, sectorIndex.y);
+    } else if ( sectorIndex.x == 0 ){
+      ShowChunk(3, sectorIndex.x, sectorIndex.y - 1);
+    } else {
+      ShowChunk(0, sectorIndex.x - 1, sectorIndex.y - 1);
+    }
+  } else if ( currentSector == 3 )
+    sectorIndex.y == 0 ? ShowChunk(2, sectorIndex.x + 1, sectorIndex.y) : ShowChunk(3, sectorIndex.x + 1, sectorIndex.y - 1);
+
+  if ( currentSector == 3 ) {                                                    //Bottom Left
+    ShowChunk(currentSector, sectorIndex.x + 1, sectorIndex.y + 1);
+  } else if ( currentSector == 0 ) {
+    sectorIndex.x == 0 ? ShowChunk(3, sectorIndex.x, sectorIndex.y + 1) : ShowChunk(0, sectorIndex.x - 1, sectorIndex.y + 1);
+  } else if ( currentSector == 1 ) {
+    if ( sectorIndex.y == 0 ){
+      sectorIndex.x == 0 ? ShowChunk(3, 0, 0) : ShowChunk(0, sectorIndex.x - 1, sectorIndex.y);
+    } else if ( sectorIndex.x == 0 ){
+      ShowChunk(2, sectorIndex.x, sectorIndex.y - 1);
+    } else {
+      ShowChunk(1, sectorIndex.x - 1, sectorIndex.y - 1);
+    }
+  } else if ( currentSector == 2 )
+    sectorIndex.y == 0 ? ShowChunk(3, sectorIndex.x + 1, sectorIndex.y) : ShowChunk(2, sectorIndex.x + 1, sectorIndex.y - 1);
+
 }
 
 function HideChunk(sector, z, x){
