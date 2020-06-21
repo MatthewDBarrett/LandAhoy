@@ -18,7 +18,7 @@ var increasePitch = false;
 
 var speed = 0;
 var minSpeed = 0;
-var maxSpeed = 300;
+var maxSpeed = 400;
 
 var rollSpeed = 1000;
 var yawSpeed = 350;
@@ -258,7 +258,7 @@ function animate(){
     ship.add(pivotUpper);
     ship.add(flashlightTarget);
     ship.add(flashlight);
-    if(isFlashlightActive){   
+    if(isFlashlightActive){
       flashlight.intensity = 0.4;
     }
     else{
@@ -279,7 +279,7 @@ function animate(){
       boosterParticleRight.setMaxParticles(speed * speed);
       boosterParticleUpper.setMaxParticles(speed * speed);
     }
-    
+
     if(speed < 10){
       boosterUpperPointLight.intensity = 1;
       boosterRightPointLight.intensity = 1;

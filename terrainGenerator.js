@@ -37,7 +37,7 @@ var chunksToggled = false;
 
 var visibleChunks = [];
 
-var renderHeight = 175;
+var renderHeight = 250;
 
 var groundVertShader = loadFile('./shaders/groundNormVertShader.glsl');
 var groundFragShader = loadFile('./shaders/groundNormFragShader.glsl');
@@ -59,10 +59,10 @@ var material = new THREE.ShaderMaterial({
 });
 
 var options = {
-  vertDistance: 200,
+  vertDistance: 300,
   xSize: 5,
   zSize: 5,
-  amplitude: 175,
+  amplitude: 250,
   hide: ['None','Chunk 1','Chunk 2','Chunk 3'],
   show: ['None','Chunk 1','Chunk 2','Chunk 3']
 }
