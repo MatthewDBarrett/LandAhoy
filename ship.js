@@ -128,9 +128,9 @@ export function Ship(position, direction){
 function init(){
   CreateShip(
     '/textures/',     //texture file path
-    'viper2.mtl',     //texture file name
+    'spaceShip.mtl',     //texture file name
     '/models/',       //model file path
-    'viper2.obj'      //model file name
+    'spaceShip.obj'      //model file name
   );
 }
 
