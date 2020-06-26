@@ -154,9 +154,9 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
 
   ship.rotation.reorder = "YXZ";
   //Setting up particle generators.
-  pivotLeft.position.set(ship.position.x + 0.75, ship.position.y + 0.2, ship.position.z - 2);
-  pivotRight.position.set(ship.position.x - 0.75, ship.position.y + 0.2, ship.position.z - 2);
-  pivotUpper.position.set(ship.position.x , ship.position.y + 0.75, ship.position.z - 2);
+  pivotLeft.position.set(ship.position.x + 3, ship.position.y - 0.1, ship.position.z - 4.8);
+  pivotRight.position.set(ship.position.x - 3, ship.position.y - 0.1, ship.position.z - 4.8);
+  pivotUpper.position.set(ship.position.x , ship.position.y + 0.85, ship.position.z - 4);
   flashlightTarget.position.set(ship.position.x, ship.position.y-5, ship.position.z + 10);
   flashlight.position.set(ship.position.x, ship.position.y-2, ship.position.z + 3);
   flashlight.decay = 2;
@@ -165,10 +165,16 @@ function CreateShip(texturePath, textureFile, modelPath, modelFile){
   flashlight.angle = 0.26;
   flashlight.castShadow = true;
 
+  // var geometry1 = new THREE.SphereGeometry( 0.25, 32, 32 );
+  // var material1 = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+  // var sphere1 = new THREE.Mesh( geometry1, material1 );
+  // sphere1.position.set( ship.position.x + 3, ship.position.y - 0.1, ship.position.z - 4.8 );
+  // getScene().add( sphere1 );
+
   //Pointlight
-  boosterUpperPointLight.position.set( ship.position.x , ship.position.y + 0.75, ship.position.z - 2.2 );
-  boosterLeftPointLight.position.set( ship.position.x + 0.75, ship.position.y + 0.2, ship.position.z - 2.2 );
-  boosterRightPointLight.position.set( ship.position.x - 0.75, ship.position.y + 0.2, ship.position.z - 2.2 );
+  boosterUpperPointLight.position.set( ship.position.x , ship.position.y + 0.85, ship.position.z - 4 );
+  boosterLeftPointLight.position.set( ship.position.x + 3, ship.position.y - 0.1, ship.position.z - 4.8 );
+  boosterRightPointLight.position.set( ship.position.x - 3, ship.position.y - 0.1, ship.position.z - 4.8 );
 
   //constructor(pos, dir, maxParticles, maxLifetime, maxSpeed, autoGen, meshes, isDeviate, isRotate)
   boosterParticleLeft = new ParticleGen( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), 50, 1, 0.1, true, particleMeshes, true, true );
